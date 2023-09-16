@@ -3,9 +3,6 @@ import { loginValidation, registerValidation } from "../utils/userValidations";
 import { prisma } from "../lib/prisma";
 import bcrypt from 'bcrypt';
 import { generateTokens, validateRefreshToken } from "../utils/tokenator";
-import { JWTExpired, JWTInvalid } from "jose/dist/types/util/errors";
-
-
 export async function register(req: Request, res: Response, next: NextFunction) {
     try {
         const userdata = registerValidation.parse(req.body);
@@ -63,18 +60,19 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     }
 }
 
-export async function refresh(req: Request, res: Response, next: NextFunction) {
+export async function refresh(req: Request, res: Response) {
     try {
         const rt = req.cookies.refreshToken;
         if (!rt) {
             return res.status(403).json({ errors: [`Missing a refresh token!`] });
         }
-
         const rtdata = await validateRefreshToken(rt);
         const user = await prisma.user.findFirst({
             where: {
                 refreshTokens: {
-                    some: rt
+                    some: {
+                        token: rt
+                    }
                 }
             },
             include: {
@@ -133,12 +131,8 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
         res.cookie('refreshToken', refreshToken.token, { httpOnly: true, maxAge: refreshToken.expiresIn, sameSite: 'strict' })
         // send access token
         return res.status(201).json({ accessToken: accessToken.token, expiresIn: accessToken.expiresIn });
-    } catch (err) {
-        if (err instanceof JWTInvalid) {
-            return res.status(403).json({ errors: [`Invalid refresh token!`] });
-        } else if (err instanceof JWTExpired) {
-            return res.status(403).json({ errors: [`Refresh token is expired`] });
-        }
-        next(err);
+    } catch (err: unknown) {
+        console.log(err);
+        return res.status(403).json({ errors: [`Invalid or expired refresh token`] });
     }
 }

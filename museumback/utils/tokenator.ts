@@ -44,8 +44,8 @@ async function generateToken(data: TokenPayload, secret: Uint8Array = accessSecr
  * @returns newly created refresh and access tokens
  */
 export async function generateTokens(data: TokenPayload) {
-    const _expTimeAccess = new Date().getTime() + 1000 * 60 * 60 * 2; // 2h
-    const _expTimeRefresh = new Date().getTime() + 1000 * 60 * 60 * 24 * 7; // 1w
+    const _expTimeAccess = 1000 * 60 * 60 * 2; // 2h
+    const _expTimeRefresh = 1000 * 60 * 60 * 24 * 7; // 1w
 
     const accessToken = await generateToken(data, accessSecret, _expTimeAccess);
     const refreshToken = await generateToken(data, refreshSecret, _expTimeRefresh);
