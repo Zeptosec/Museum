@@ -1,11 +1,30 @@
-import { User } from "@prisma/client";
 import jose, { JWTPayload } from 'jose'
+import { $Enums } from "@prisma/client";
 
-const secret = new TextEncoder().encode(
-    process.env.SECRET
+const accessSecret = new TextEncoder().encode(
+    process.env.ACCESS_SECRET
 )
 
-export async function generateToken(data: JWTPayload, time: number = 1000 * 60 * 60 * 2) {
+const refreshSecret = new TextEncoder().encode(
+    process.env.REFRESH_SECRET
+)
+
+
+type TokenData = {
+    id: number,
+    role: $Enums.Role
+}
+
+export type TokenPayload = JWTPayload & TokenData
+
+/**
+ * Creates a new token
+ * @param data data to encode into token
+ * @param secret secret to use to encode the token
+ * @param time time in ms the token is valid from creation
+ * @returns the token and expires in
+ */
+async function generateToken(data: TokenPayload, secret: Uint8Array = accessSecret, time: number = 1000 * 60 * 60 * 2) {
     const _expTime = new Date().getTime() + time;
     const jwt = await new jose.SignJWT(data)
         .setProtectedHeader({ alg: 'HS256' })
@@ -14,14 +33,54 @@ export async function generateToken(data: JWTPayload, time: number = 1000 * 60 *
         .setAudience('user')
         .setExpirationTime(_expTime)
         .sign(secret);
+
     // adjusting for time jitter
     return { token: jwt, expiresIn: time - 3000 };
 }
 
-export async function validateToken(token: string): Promise<JWTPayload> {
+/**
+ * Generates new refresh token and access token
+ * @param data data to encode into the token
+ * @returns newly created refresh and access tokens
+ */
+export async function generateTokens(data: TokenPayload) {
+    const _expTimeAccess = new Date().getTime() + 1000 * 60 * 60 * 2; // 2h
+    const _expTimeRefresh = new Date().getTime() + 1000 * 60 * 60 * 24 * 7; // 1w
+
+    const accessToken = await generateToken(data, accessSecret, _expTimeAccess);
+    const refreshToken = await generateToken(data, refreshSecret, _expTimeRefresh);
+
+    return { accessToken, refreshToken };
+}
+
+/**
+ * Validates jwt token string. Throws an error on invalid tokens
+ * @param token jwt token string
+ * @param secret secret for decoding the token
+ * @returns token payload if passed the validation
+ */
+async function validateToken(token: string, secret: Uint8Array): Promise<TokenPayload> {
     const { payload } = await jose.jwtVerify(token, secret, {
         issuer: 'server',
         audience: 'user',
     })
-    return payload
+    return payload as TokenPayload
+}
+
+/**
+ * Validates access token and return the data stored in the token
+ * @param token jwt token string
+ * @returns token payload
+ */
+export async function validateAccessToken(token: string) {
+    return await validateToken(token, accessSecret);
+}
+
+/**
+ * Validates refresh token and return the data stored in the token
+ * @param token jwt token string
+ * @returns token payload 
+ */
+export async function validateRefreshToken(token: string) {
+    return await validateToken(token, refreshSecret);
 }

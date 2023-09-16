@@ -1,8 +1,9 @@
 import express from 'express';
 import cors from 'cors';
-import userRouter from './routes/user';
+import authRouter from './routes/auth';
 import 'dotenv/config'
 import errorHandler from './middleware/errorHandler';
+import cookieParser from 'cookie-parser';
 
 const app: express.Application = express();
 
@@ -12,8 +13,9 @@ app.use(cors({
     'origin': '*' // allow to make requests from any origin for now...
 }))
 
+app.use(cookieParser());
 app.use(express.json());
-app.use('/api/auth', userRouter);
+app.use('/api/auth', authRouter);
 app.get('/', (_req, _res) => {
     _res.send("TypeScript With Express");
 });

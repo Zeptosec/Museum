@@ -13,15 +13,24 @@ generator client {
 }
 
 model User {
-    id              Int            @id @default(autoincrement())
-    createdAt       DateTime       @default(now())
-    email           String         @unique
+    id              Int             @id @default(autoincrement())
+    createdAt       DateTime        @default(now())
+    email           String          @unique
     name            String
     surname         String
     password        String
-    role            Role           @default(GUEST)
-    myCategories    UserCategory[] @relation("myCategories")
-    givenCategories UserCategory[] @relation("givenCategories")
+    refreshTokens   RefreshTokens[]
+    role            Role            @default(GUEST)
+    myCategories    UserCategory[]  @relation("myCategories")
+    givenCategories UserCategory[]  @relation("givenCategories")
+}
+
+model RefreshTokens {
+    id      Int      @id @default(autoincrement())
+    user    User     @relation(fields: [userId], references: [id])
+    token   String
+    expires DateTime
+    userId  Int
 }
 
 model Museum {
