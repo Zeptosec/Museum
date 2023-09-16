@@ -47,6 +47,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 
         // set refresh token as a cookie
         res.cookie('refreshToken', refreshToken.token, { httpOnly: true, maxAge: refreshToken.expiresIn, sameSite: 'strict' })
+        // probably should send access token in an authorization header
         return res.status(200).json({
             accessToken: accessToken.token,
             expiresIn: accessToken.expiresIn,
@@ -130,6 +131,7 @@ export async function refresh(req: Request, res: Response) {
         // set refresh token as a cookie
         res.cookie('refreshToken', refreshToken.token, { httpOnly: true, maxAge: refreshToken.expiresIn, sameSite: 'strict' })
         // send access token
+        // probably should send access token in an authorization header
         return res.status(201).json({ accessToken: accessToken.token, expiresIn: accessToken.expiresIn });
     } catch (err: unknown) {
         console.log(err);

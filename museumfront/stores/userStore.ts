@@ -2,8 +2,9 @@ import { defineStore } from 'pinia'
 
 export type UserData = {
     accessToken: string,
-    expiresIn: number // ms
-    name: string
+    accessTime: number,
+    expiresIn: number, // ms
+    name: string,
     surname: string,
     email: string,
     role: "GUEST" | "CURATOR" | "ADMIN" | "SUPERADMIN"
@@ -31,7 +32,13 @@ export const useUserStore = defineStore('user', () => {
         }
     })
 
+    function tokenExpired() {
+        if (!user.value) return true;
+        return user.value.accessTime + user.value.expiresIn < new Date().getTime();
+    }
+
     return {
-        user
+        user,
+        tokenExpired
     }
 })
