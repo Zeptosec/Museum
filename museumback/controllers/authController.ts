@@ -38,12 +38,20 @@ export async function login(req: Request, res: Response, next: NextFunction) {
         if (!user) return res.status(400).json({ errors: [`email or password is incorrect!`] });
         const isMatch = await bcrypt.compare(userdata.password, user.password);
         if (!isMatch) return res.status(400).json({ errors: [`email or password is incorrect!`] })
-        // generate access and refresh tokens
         const payload = {
             id: user.id,
             role: user.role
         }
+        // generate access and refresh tokens
         const { accessToken, refreshToken } = await generateTokens(payload);
+        // store refresh token in a database
+        await prisma.refreshTokens.create({
+            data: {
+                token: refreshToken.token,
+                expires: new Date(new Date().getTime() + refreshToken.expiresIn),
+                userId: user.id
+            }
+        })
         console.log(`refreshtkn: ${refreshToken.token}`);
         // set refresh token as a cookie
         res.cookie('refreshToken', refreshToken.token, { httpOnly: true, maxAge: refreshToken.expiresIn, sameSite: 'strict' })
@@ -109,25 +117,34 @@ export async function refresh(req: Request, res: Response) {
         });
         const prevRt = user.refreshTokens.find(w => w.token === rt);
         if (!prevRt) return res.status(500).json({ errors: [`Failed to find the refresh token`] });
-        // update refresh token in database
-        await prisma.user.update({
+        // update refresh token in a database
+        await prisma.refreshTokens.update({
             where: {
-                id: user.id
+                id: prevRt.id
             },
             data: {
-                refreshTokens: {
-                    update: {
-                        where: {
-                            id: prevRt.id
-                        },
-                        data: {
-                            token: refreshToken.token,
-                            expires: new Date(new Date().getTime() + refreshToken.expiresIn)
-                        }
-                    }
-                }
+                token: refreshToken.token,
+                expires: new Date(new Date().getTime() + refreshToken.expiresIn)
             }
         })
+        // await prisma.user.update({
+        //     where: {
+        //         id: user.id
+        //     },
+        //     data: {
+        //         refreshTokens: {
+        //             update: {
+        //                 where: {
+        //                     id: prevRt.id
+        //                 },
+        //                 data: {
+        //                     token: refreshToken.token,
+        //                     expires: new Date(new Date().getTime() + refreshToken.expiresIn)
+        //                 }
+        //             }
+        //         }
+        //     }
+        // })
         // set refresh token as a cookie
         res.cookie('refreshToken', refreshToken.token, { httpOnly: true, maxAge: refreshToken.expiresIn, sameSite: 'strict' })
         // send access token

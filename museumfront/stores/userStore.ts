@@ -11,7 +11,7 @@ export type UserData = {
 }
 
 export const useUserStore = defineStore('user', () => {
-    const localStorageUser = localStorage.getItem('user');
+    const localStorageUser = process.client ? localStorage.getItem('user') : undefined;
     let localUser: UserData | undefined;
     if (localStorageUser) {
         try {

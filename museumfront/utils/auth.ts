@@ -1,14 +1,14 @@
 import { useUserStore } from "~/stores/userStore";
 import { RefreshError } from "~/types/errors";
-const config = useRuntimeConfig();
 
 type RefreshResponse = {
     accessToken: string,
     expiresIn: number
 }
 
-const { user } = useUserStore();
 export async function refreshTheToken() {
+    const { user } = useUserStore();
+    const config = useRuntimeConfig();
     if (!user) throw new RefreshError("Missing a user");
     const rs = await fetch(`${config.public.apiBase}/auth/refresh`);
     if (!rs.ok) {
@@ -30,6 +30,7 @@ export async function refreshTheToken() {
  * @returns response object and json
  */
 export async function AuthFetch(url: RequestInfo | URL, options: RequestInit) {
+    const { user } = useUserStore();
     const headers = new Headers(options.headers);
     if (!user) throw Error("Missing a user");
     headers.set('Authorization', user.accessToken);
