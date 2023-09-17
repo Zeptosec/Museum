@@ -1,19 +1,45 @@
 <template>
-    <nav class="w-full flex justify-between p-2">
+    <nav class="w-full flex max-w-5xl justify-between py-2 mx-auto">
         <div>
             <NuxtLink to="/">
-                <h2 class="text-2xl">
+                <h2 class="text-2xl font-bold">
                     Museum
                 </h2>
             </NuxtLink>
         </div>
-        <div class="flex gap-2">
-            <NuxtLink to="/">
+        <div v-if="!userStore.user" class="flex gap-2">
+            <NuxtLink to="/login">
                 Login
             </NuxtLink>
-            <NuxtLink to="/">
+            <NuxtLink to="/register">
                 Register
             </NuxtLink>
         </div>
+        <div v-else>
+            <button @click="logout" class="p-0 text-quaternary hover:text-tertiary bg-transparent">
+                Logout
+            </button>
+        </div>
     </nav>
 </template>
+
+<script setup lang="ts">
+import { useUserStore } from '~/stores/userStore';
+const config = useRuntimeConfig();
+const userStore = useUserStore();
+const router = useRouter();
+
+async function logout() {
+    if (!userStore.user) return;
+    const { response } = await AuthFetch(`${config.public.apiBase}/auth/logout`, {
+        method: "POST",
+        headers: {
+            'Authorization': `Bearer ${userStore.user.accessToken}`
+        }
+    });
+    if (response.ok) {
+        userStore.user = undefined;
+        router.push('/');
+    }
+}
+</script>

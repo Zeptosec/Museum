@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { loginValidation, registerValidation } from "../utils/userValidations";
 import { prisma } from "../lib/prisma";
 import bcrypt from 'bcrypt';
-import { generateTokens, validateRefreshToken } from "../utils/tokenator";
+import { generateTokens, validateAccessToken, validateRefreshToken } from "../utils/tokenator";
 export async function register(req: Request, res: Response, next: NextFunction) {
     try {
         const userdata = registerValidation.parse(req.body);
@@ -44,7 +44,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
             role: user.role
         }
         const { accessToken, refreshToken } = await generateTokens(payload);
-
+        console.log(`refreshtkn: ${refreshToken.token}`);
         // set refresh token as a cookie
         res.cookie('refreshToken', refreshToken.token, { httpOnly: true, maxAge: refreshToken.expiresIn, sameSite: 'strict' })
         // probably should send access token in an authorization header
@@ -136,5 +136,46 @@ export async function refresh(req: Request, res: Response) {
     } catch (err: unknown) {
         console.log(err);
         return res.status(403).json({ errors: [`Invalid or expired refresh token`] });
+    }
+}
+
+export async function logout(req: Request, res: Response, next: NextFunction) {
+    try {
+        if (!req.headers.authorization) return res.status(401).json({ errors: ['Missing accessToken in headers!'] });
+        if (!req.headers.authorization.startsWith('Bearer ')) return res.status(400).json({ errors: [`Token must be a Bearer!`] });
+        const token = req.headers.authorization.slice(7);
+        const data = await validateAccessToken(token);
+        try {
+            const refreshToken = req.cookies.refreshToken;
+            if (!refreshToken) throw new Error("Missing refresh token in cookies");
+            await validateRefreshToken(refreshToken);
+            // trying to find user refresh token in a database
+            const rtkn = await prisma.refreshTokens.findFirst({
+                where: {
+                    userId: data.id,
+                    token: refreshToken
+                },
+                select: {
+                    id: true
+                }
+            })
+            // removing refresh token if it exists
+            if (rtkn) {
+                await prisma.refreshTokens.delete({
+                    where: {
+                        id: rtkn.id
+                    }
+                })
+            }
+        } catch (err1) {
+            console.log(err1);
+        }
+        res.clearCookie('refreshToken');
+        // sadly account will still be valid while accessToken is valid.
+        // but refreshToken is invalid.
+        res.sendStatus(200)
+    } catch (err) {
+        console.log(err);
+        next(err);
     }
 }

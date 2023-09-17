@@ -1,4 +1,4 @@
-import jose, { JWTPayload } from 'jose'
+import { SignJWT, JWTPayload, jwtVerify } from 'jose'
 import { $Enums } from "@prisma/client";
 
 const accessSecret = new TextEncoder().encode(
@@ -26,7 +26,7 @@ export type TokenPayload = JWTPayload & TokenData
  */
 async function generateToken(data: TokenPayload, secret: Uint8Array = accessSecret, time: number = 1000 * 60 * 60 * 2) {
     const _expTime = new Date().getTime() + time;
-    const jwt = await new jose.SignJWT(data)
+    const jwt = await new SignJWT(data)
         .setProtectedHeader({ alg: 'HS256' })
         .setIssuedAt()
         .setIssuer('server')
@@ -60,7 +60,7 @@ export async function generateTokens(data: TokenPayload) {
  * @returns token payload if passed the validation
  */
 async function validateToken(token: string, secret: Uint8Array): Promise<TokenPayload> {
-    const { payload } = await jose.jwtVerify(token, secret, {
+    const { payload } = await jwtVerify(token, secret, {
         issuer: 'server',
         audience: 'user',
     })

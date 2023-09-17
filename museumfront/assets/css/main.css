@@ -10,8 +10,70 @@
     font-display: swap;
 }
 
+@font-face {
+    font-family: 'JostBold';
+    src: url('/fonts/Jost/static/Jost-Bold.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
 
+@layer base {
+    html[data-theme="default"] {
+        --color-primary: 34 40 49;
+        --color-secondary: 57 62 70;
+        --color-tertiary: 0 173 181;
+        --color-quaternary: 238 238 238;
+        --color-error: 239 68 68;
+    }
+}
+
+button {
+    padding: 12px 16px;
+    border-radius: 0.375rem;
+    color: rgb(var(--color-quaternary));
+    background: rgb(var(--color-tertiary));
+    outline: none;
+    transition: all 200ms;
+}
+
+button:hover {
+    color: rgb(var(--color-quaternary) / 0.7)
+}
 
 html {
     font-family: 'Jost';
+}
+
+body {
+    background-color: rgb(var(--color-primary));
+    color: rgb(var(--color-quaternary))
+}
+
+a {
+    transition: color 200ms;
+}
+
+.router-link-exact-active,
+a:hover {
+    color: rgb(var(--color-tertiary));
+}
+
+input {
+    padding: 12px 16px;
+    border-radius: 0.375rem;
+    width: 100%;
+    background-color: rgb(var(--color-secondary));
+    color: rgb(var(--color-tertiary));
+    transition: all 200ms;
+    outline: none;
+}
+
+input:focus {
+    box-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) rgb(var(--color-tertiary));
+}
+
+input::placeholder {
+    color: rgb(var(--color-tertiary));
+    outline-color: rgb(var(--color-tertiary));
 }

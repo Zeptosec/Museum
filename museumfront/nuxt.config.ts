@@ -6,7 +6,7 @@ export default defineNuxtConfig({
     apiSecret: '123',
     // Keys within public are also exposed client-side
     public: {
-      apiBase: '/api'
+      apiBase: 'http://localhost:4000/api'
     }
   },
   css: ['~/assets/css/main.css'],

@@ -1,4 +1,5 @@
 import { useUserStore } from "~/stores/userStore";
+import { RefreshError } from "~/types/errors";
 const config = useRuntimeConfig();
 
 type RefreshResponse = {
@@ -33,7 +34,11 @@ export async function AuthFetch(url: RequestInfo | URL, options: RequestInit) {
     if (!user) throw Error("Missing a user");
     headers.set('Authorization', user.accessToken);
     const rs = await fetch(url, options);
-    const json = await rs.json();
+    let json = undefined;
+    const contentType = headers.get("content-type");
+    if (contentType && contentType.indexOf("application/json") !== -1) {
+        json = await rs.json();
+    }
     if (rs.ok) {
         return { response: rs, json };
     } else {
@@ -45,9 +50,13 @@ export async function AuthFetch(url: RequestInfo | URL, options: RequestInit) {
                 ...options,
                 headers: headers
             });
-            const json2 = await rs2.json();
+            const contentType = headers.get("content-type");
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                json = await rs.json();
+            } else json = undefined;
+
             if (rs2.ok) {
-                return { response: rs2, json: json2 };
+                return { response: rs2, json };
             } else {
                 throw new RefreshError("Failed to refresh the token.")
             }

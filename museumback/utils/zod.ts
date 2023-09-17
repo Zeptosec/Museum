@@ -1,5 +1,13 @@
 import { ZodError } from "zod";
 
-export function formatToErrors(err: ZodError): string[] {
-    return err.issues.map(w => `${w.path.join(', ')}: ${w.message}`);
+type FormattedZodError = {
+    field: string,
+    message: string
+}
+
+export function formatToErrors(err: ZodError): FormattedZodError[] {
+    return err.issues.map(w => ({
+        field: w.path[0].toString(),
+        message: w.message
+    }));
 }
