@@ -1,7 +1,11 @@
 <template>
-    <div class="mx-auto max-w-5xl px-2">
-        <Navbar />
-        <slot />
+    <div>
+        <div class="bg-secondary mb-4">
+            <Navbar />
+        </div>
+        <main class="mx-auto max-w-6xl px-2">
+            <slot />
+        </main>
     </div>
 </template>
 

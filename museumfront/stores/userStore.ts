@@ -1,5 +1,13 @@
 import { defineStore } from 'pinia'
 
+export const RolesEnum = {
+    GUEST: 'GUEST',
+    CURATOR: 'CURATOR',
+    ADMIN: 'ADMIN'
+} as const;
+
+export type Roles = typeof RolesEnum[keyof typeof RolesEnum]
+
 export type UserData = {
     accessToken: string,
     accessTime: number,
@@ -7,7 +15,7 @@ export type UserData = {
     name: string,
     surname: string,
     email: string,
-    role: "GUEST" | "CURATOR" | "ADMIN" | "SUPERADMIN"
+    role: Roles
 }
 
 export const useUserStore = defineStore('user', () => {

@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { getZodError } from '~/types/errors';
+import { getZodError } from '~/utils/errors';
 const router = useRouter();
 const config = useRuntimeConfig();
 const userdata = ref({

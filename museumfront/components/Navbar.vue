@@ -1,5 +1,5 @@
 <template>
-    <nav class="w-full flex max-w-5xl justify-between py-2 mx-auto">
+    <nav class="w-full flex max-w-6xl justify-between p-2 mx-auto">
         <div>
             <NuxtLink to="/">
                 <h2 class="text-2xl font-bold">
@@ -19,6 +19,9 @@
             <button @click="logout" class="p-0 text-quaternary hover:text-tertiary bg-transparent">
                 Logout
             </button>
+            <NuxtLink v-if="userStore.user.role === 'ADMIN'" to="/admin/users">
+                Users
+            </NuxtLink>
         </div>
     </nav>
 </template>

@@ -8,6 +8,7 @@
     font-weight: normal;
     font-style: normal;
     font-display: swap;
+    line-height: 32px;
 }
 
 @font-face {
@@ -16,6 +17,7 @@
     font-weight: normal;
     font-style: normal;
     font-display: swap;
+    line-height: 32px;
 }
 
 @layer base {
@@ -52,6 +54,7 @@ body {
 
 a {
     transition: color 200ms;
+    line-height: 32px;
 }
 
 .router-link-exact-active,

@@ -29,7 +29,7 @@
 
 <script setup lang="ts">
 import { UserData, useUserStore } from '~/stores/userStore';
-import { getZodError } from '~/types/errors';
+import { getZodError } from '~/utils/errors';
 const userStore = useUserStore();
 const router = useRouter();
 const config = useRuntimeConfig();
@@ -50,9 +50,10 @@ async function onSubmit() {
         const { data, error } = await useFetch(`${config.public.apiBase}/auth/login`, {
             server: false,
             method: "POST",
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json'
+                'Accept': 'application/json',
             },
             body: JSON.stringify({
                 email: userdata.value.email,
