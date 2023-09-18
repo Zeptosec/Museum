@@ -10,7 +10,7 @@ const refreshSecret = new TextEncoder().encode(
 )
 
 
-type TokenData = {
+export type TokenData = {
     id: number,
     role: $Enums.Role
 }
