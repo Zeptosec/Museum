@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { TokenPayload } from "../utils/tokenator";
 import { prisma } from "../lib/prisma";
-import { ZodError, z } from "zod";
+import { z } from "zod";
 
 const pageSize = 30;
 
@@ -11,6 +11,30 @@ const validatePageParams = z.object({
         z.number().positive().max(100)
     )
 })
+
+const validateSetRole = z.object({
+    userid: z.number().min(0),
+    newRole: z.enum(['ADMIN', 'GUEST', 'CURATOR'])
+})
+
+export async function setRole(req: Request, res: Response, next: NextFunction) {
+    try {
+        const params = validateSetRole.parse(req.body);
+        const user = res.locals.user as TokenPayload;
+        if(user.id === params.userid) return res.status(400).json({errors: ["Can't change your own role!"]})
+        await prisma.user.update({
+            where: {
+                id: params.userid,
+            },
+            data: {
+                role: params.newRole
+            }
+        })
+        return res.status(200).send();
+    } catch (err: unknown) {
+        next(err);
+    }
+}
 
 export async function getUsers(req: Request, res: Response, next: NextFunction) {
     try {
@@ -29,11 +53,11 @@ export async function getUsers(req: Request, res: Response, next: NextFunction) 
                 email: true,
                 id: true,
                 name: true,
-                surname:true,
+                surname: true,
                 role: true
             }
         });
-        return res.status(200).json({users});
+        return res.status(200).json({ users });
     } catch (err: unknown) {
         next(err);
     }

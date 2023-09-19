@@ -5,5 +5,11 @@
 </template>
 
 <script setup lang="ts">
+import { useUserStore } from '~/stores/userStore';
+const userStore = useUserStore();
 
+onMounted(() => {
+    console.log(userStore.user);
+
+})
 </script>

@@ -127,7 +127,7 @@ export async function refresh(req: Request, res: Response) {
             }
         })
         // set refresh token as a cookie
-        res.cookie('refreshToken', refreshToken.token, { httpOnly: true, maxAge: refreshToken.expiresIn, sameSite: 'strict' })
+        res.cookie('refreshToken', refreshToken.token, { httpOnly: true, maxAge: refreshToken.expiresIn, sameSite: 'none', secure: true })
         // send access token
         // probably should send access token in an authorization header
         return res.status(201).json({ accessToken: accessToken.token, expiresIn: accessToken.expiresIn });

@@ -79,7 +79,7 @@ async function onSubmit() {
             return;
         }
         const resData = data.value as UserData
-        userStore.user = { ...resData };
+        userStore.setUser(resData);
         router.push('/')
     } catch (err) {
         console.error(err);
