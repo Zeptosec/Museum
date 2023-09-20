@@ -3,12 +3,12 @@ import { TokenPayload } from "../utils/tokenator";
 import { prisma } from "../lib/prisma";
 import { z } from "zod";
 
-const pageSize = 30;
+export const pageSize = 30;
 
-const validatePageParams = z.object({
+export const validatePageParams = z.object({
     page: z.preprocess(
         (a) => parseInt(z.string().parse(a), 10),
-        z.number().positive().max(100)
+        z.number().positive()
     )
 })
 

@@ -3,7 +3,7 @@ import { getUsers, setRole } from "../controllers/adminController";
 import authenticate from "../middleware/authenticated";
 
 const router = Router();
-router.use(authenticate('ADMIN'));
+router.use(authenticate(['ADMIN']));
 // register
 router.get('/users', getUsers);
 // change role

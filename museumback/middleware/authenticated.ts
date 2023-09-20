@@ -3,14 +3,14 @@ import { NextFunction } from "express";
 import { validateAccessToken } from "../utils/tokenator";
 import { $Enums } from "@prisma/client";
 
-export default function authenticate(role: $Enums.Role = 'GUEST') {
+export default function authenticate(roles: $Enums.Role[] = ['GUEST']) {
     return async function (req: Request, res: Response, next: NextFunction) {
         try {
             const accessToken = req.headers.authorization;
             if (!accessToken || Array.isArray(accessToken)) return res.status(401).json({ errors: ['Missing Access Token!'] });
             if (!accessToken.startsWith('Bearer ')) return res.status(400).json({errors:['Access token must be a Bearer!']})
             const user = await validateAccessToken(accessToken.slice(7));
-            if(user.role === role){
+            if(roles.includes(user.role)){
                 res.locals.user = user;
                 next();
             }else{
