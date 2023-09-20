@@ -62,7 +62,7 @@ a:hover {
     color: rgb(var(--color-tertiary));
 }
 
-input {
+input, textarea {
     padding: 12px 16px;
     border-radius: 0.375rem;
     width: 100%;
@@ -72,11 +72,11 @@ input {
     outline: none;
 }
 
-input:focus {
+input:focus, textarea:focus {
     box-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) rgb(var(--color-tertiary));
 }
 
-input::placeholder {
-    color: rgb(var(--color-tertiary));
+input::placeholder, textarea::placeholder {
+    color: rgb(var(--color-tertiary) / 0.5);
     outline-color: rgb(var(--color-tertiary));
 }

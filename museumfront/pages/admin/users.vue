@@ -52,7 +52,6 @@ async function fetchUsers() {
             else
                 users.value.push(...rs.json.users);
         } else {
-            console.log(rs);
             const rr = getZodError(rs.json);
             if (rr) {
                 error.value = rr.map(w => `${w.field}: ${w.message}`).join(', ');

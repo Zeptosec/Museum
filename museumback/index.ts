@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import authRouter from './routes/auth';
 import adminRouter from './routes/admin';
+import museumRouter from './routes/museum';
+import categoryRouter from './routes/category';
 import 'dotenv/config'
 import errorHandler from './middleware/errorHandler';
 import cookieParser from 'cookie-parser';
@@ -11,13 +13,15 @@ const app: express.Application = express();
 // adding root level middleware
 app.use(cors({
     'credentials': true,
-    'origin': ['http://127.0.0.1:3000', 'https://somevercel23.com'] // allow to make requests from any origin for now...
+    'origin': ['http://127.0.0.1:3000', 'https://somevercel23.com', 'http://localhost:3000'] // allow to make requests from any origin for now...
 }))
 
 app.use(cookieParser());
 app.use(express.json());
 app.use('/api/auth', authRouter);
 app.use('/api/v1/admin', adminRouter);
+app.use('/api/v1/museum', museumRouter);
+app.use('/api/v1/category', categoryRouter);
 app.get('/', (_req, _res) => {
     _res.send("Express Oi!");
 });

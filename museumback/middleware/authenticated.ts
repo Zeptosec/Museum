@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { NextFunction } from "express";
-import { validateAccessToken } from "../utils/tokenator";
+import { TokenPayload, validateAccessToken } from "../utils/tokenator";
 import { $Enums } from "@prisma/client";
 
 export default function authenticate(roles: $Enums.Role[] = ['GUEST']) {
