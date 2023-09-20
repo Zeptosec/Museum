@@ -7,8 +7,9 @@
             </NuxtLink>
         </div>
         <h2 class="text-center text-2xl font-bold">Categories</h2>
-        <div class="grid gap-2">
-            <CategoryCard v-for="category in categories" :category="category" />
+        <div v-if="cdata" class="grid gap-2 mt-2">
+            <p v-if="cdata.categories.length === 0" class="text-center text-xl font-bold text-error">Museum has no categories</p>
+            <CategoryCard v-for="category in cdata.categories" :category="category" :museum="data.museum" />
         </div>
     </div>
     <div v-else>
@@ -24,13 +25,13 @@ type APIBody = {
     museum: MuseumData
 }
 type APICategories = {
-    categories: CategoryData
+    categories: CategoryData[]
 }
 const userStore = useUserStore();
 const route = useRoute()
 const config = useRuntimeConfig();
 const { data } = await useFetch<APIBody>(`${config.public.apiBase}/v1/museum/${route.params.id}`);
-const { data: categories} = await useFetch<APICategories>(`${config.public.apiBase}/v1/category/page/${route.params.id}/1`)
+const { data: cdata } = await useFetch<APICategories>(`${config.public.apiBase}/v1/category/page/${route.params.id}/1`);
 </script>
 
 <style scoped></style>

@@ -18,7 +18,6 @@ const validateGetParams = z.object({
 export async function getCategories(req: Request, res: Response, next: NextFunction) {
     try {
         const params = validateGetParams.parse(req.params);
-        console.log(params);
         const categories = await prisma.category.findMany({
             take: pageSize,
             skip: (params.page - 1) * pageSize,
@@ -26,7 +25,6 @@ export async function getCategories(req: Request, res: Response, next: NextFunct
                 museumId: params.museumId
             }
         });
-        console.log(categories)
         return res.status(200).json({ categories });
     } catch (rr) {
         next(rr);
@@ -47,10 +45,17 @@ const validateGetSingleParams = z.object({
 export async function getCategory(req: Request, res: Response, next: NextFunction) {
     try {
         const params = validateGetSingleParams.parse(req.params);
-        const category = await prisma.category.findMany({
+        const category = await prisma.category.findFirst({
             where: {
                 museumId: params.museumId,
                 id: params.categoryId
+            },
+            include: {
+                museum: {
+                    select: {
+                        name: true
+                    }
+                }
             }
         });
         if (!category) return res.status(404).json({ errors: ['Category is not found'] });
