@@ -4,12 +4,13 @@ import authRouter from './routes/auth';
 import adminRouter from './routes/admin';
 import museumRouter from './routes/museum';
 import categoryRouter from './routes/category';
+import itemRouter from './routes/item';
 import 'dotenv/config'
 import errorHandler from './middleware/errorHandler';
 import cookieParser from 'cookie-parser';
+import formidable from 'express-formidable';
 
 const app: express.Application = express();
-
 // adding root level middleware
 app.use(cors({
     'credentials': true,
@@ -17,11 +18,12 @@ app.use(cors({
 }))
 
 app.use(cookieParser());
-app.use(express.json());
+app.use(formidable());
 app.use('/api/auth', authRouter);
 app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/museum', museumRouter);
 app.use('/api/v1/category', categoryRouter);
+app.use('/api/v1/item', itemRouter);
 app.get('/', (_req, _res) => {
     _res.send("Express Oi!");
 });

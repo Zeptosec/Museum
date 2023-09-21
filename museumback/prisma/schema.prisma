@@ -74,5 +74,4 @@ enum Role {
     GUEST
     CURATOR
     ADMIN
-    SUPERADMIN
 }
