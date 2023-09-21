@@ -3,7 +3,7 @@
         <h1 class="text-center text-2xl pb-2 font-bold">{{ cdata.category.name }}</h1>
         <p class="text-center text-lg border-b border-secondary pb-2 mb-2">{{ cdata.category.description }}</p>
         <div v-if="userStore.user?.role === 'ADMIN'" class="flex justify-center py-2">
-            <NuxtLink :to="`${route.path}/new`" class="px-3 py-1 rounded-xl bg-tertiary hover:text-secondary">New category
+            <NuxtLink :to="`${route.path}/new`" class="px-3 py-1 rounded-xl bg-tertiary hover:text-secondary">New item
             </NuxtLink>
         </div>
     </div>
