@@ -47,7 +47,7 @@ async function onSubmit() {
     if (pending.value) return;
     pending.value = true;
     try {
-        const { data, error } = await useFetch(`${config.public.apiBase}/auth/login`, {
+        const { data, error, status } = await useFetch(`${config.public.apiBase}/auth/login`, {
             server: false,
             method: "POST",
             credentials: 'include',
@@ -60,7 +60,7 @@ async function onSubmit() {
                 password: userdata.value.password
             })
         })
-
+        console.log(error.value);
         if (error && error.value) {
             if (error.value.data) {
                 const zodErrors = getZodError(error.value.data);
@@ -70,7 +70,7 @@ async function onSubmit() {
                 } else if ('errors' in error.value.data && Array.isArray(error.value.data.errors)) {
                     errorObj.value.msg = error.value.data.errors.join(', ');
                 } else {
-                    errorObj.value.msg = error.value.message;
+                    errorObj.value.msg = "An error occurred!";
                 }
             } else {
                 errorObj.value.msg = error.value.message;

@@ -8,7 +8,8 @@
         </div>
         <h2 class="text-center text-2xl font-bold">Categories</h2>
         <div v-if="cdata" class="grid gap-2 mt-2">
-            <p v-if="cdata.categories.length === 0" class="text-center text-xl font-bold text-error">Museum has no categories</p>
+            <p v-if="cdata.categories.length === 0" class="text-center text-xl font-bold text-error">Museum has no
+                categories</p>
             <CategoryCard v-for="category in cdata.categories" :category="category" :museum="data.museum" />
         </div>
     </div>
@@ -30,8 +31,8 @@ type APICategories = {
 const userStore = useUserStore();
 const route = useRoute()
 const config = useRuntimeConfig();
-const { data } = await useFetch<APIBody>(`${config.public.apiBase}/v1/museum/${route.params.id}`);
-const { data: cdata } = await useFetch<APICategories>(`${config.public.apiBase}/v1/category/page/${route.params.id}/1`);
+const { data } = await useFetch<APIBody>(`${config.public.apiBase}/v1/museums/${route.params.id}`);
+const { data: cdata } = await useFetch<APICategories>(`${config.public.apiBase}/v1/categories/${route.params.id}`);
 </script>
 
 <style scoped></style>

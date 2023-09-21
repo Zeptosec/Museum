@@ -1,7 +1,8 @@
 <template>
     <div>
         <div v-if="userStore.user?.role === 'ADMIN'" class="flex justify-center">
-            <NuxtLink to="/admin/newmuseum" class="px-3 py-1 rounded-xl bg-tertiary hover:text-secondary">New museum</NuxtLink>
+            <NuxtLink to="/admin/newmuseum" class="px-3 py-1 rounded-xl bg-tertiary hover:text-secondary">New museum
+            </NuxtLink>
         </div>
         <h1 class="text-4xl text-center font-bold py-2">Museums</h1>
         <section>
@@ -30,7 +31,7 @@ async function fetchMuseums() {
     if (pending.value) return;
     pending.value = true;
     try {
-        const rs = await useFetch(`${config.public.apiBase}/v1/museum/page/${fetchedPage.value}`);
+        const rs = await useFetch(`${config.public.apiBase}/v1/museums`);
         if (rs.status.value === 'success') {
             const data = rs.data.value as { museums: MuseumData[] };
             museums.value.push(...data.museums);
@@ -38,6 +39,7 @@ async function fetchMuseums() {
             error.value = getError(rs.data);
         }
     } catch (rr) {
+        console.error(rr);
         if (rr instanceof Error) {
             error.value = rr.message;
         } else {
@@ -48,8 +50,4 @@ async function fetchMuseums() {
     }
 }
 await fetchMuseums();
-onMounted(() => {
-    console.log(userStore.user);
-
-})
 </script>

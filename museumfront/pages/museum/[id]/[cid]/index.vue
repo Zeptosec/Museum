@@ -27,7 +27,7 @@ type APICategory = {
         }
     }
 }
-const { data: cdata } = useFetch<APICategory>(`${config.public.apiBase}/v1/category/${route.params.id}/${route.params.cid}`);
+const { data: cdata } = useFetch<APICategory>(`${config.public.apiBase}/v1/categories/${route.params.id}/${route.params.cid}`);
 </script>
 
 <style scoped></style>

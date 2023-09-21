@@ -4,15 +4,15 @@ import { createCategory, deleteCategory, getCategories, getCategory, updateCateg
 
 const router = Router();
 
-// get museums
-router.get('/page/:museumId/:page', getCategories);
-// get single museum
+// get museum categories
+router.get('/:museumId', getCategories);
+// get single museum category
 router.get('/:museumId/:categoryId', getCategory);
-// update a museum
-router.patch('/:museumId/:categoryId', authenticate(['ADMIN']), updateCategory);
-// create a museum
+// update museum category
+router.put('/:museumId/:categoryId', authenticate(['ADMIN']), updateCategory);
+// create museum category
 router.post('/:museumId', authenticate(['ADMIN']), createCategory);
-// delete a museum
-router.delete('/:id', authenticate(['ADMIN']), deleteCategory);
+// delete museum category
+router.delete('/:museumId/:categoryId', authenticate(['ADMIN']), deleteCategory);
 
 export default router;

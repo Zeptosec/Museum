@@ -5,14 +5,14 @@ import { createMuseum, deleteMuseum, getMuseum, getMuseums, updateMuseum } from 
 const router = Router();
 
 // get museums
-router.get('/page/:page', getMuseums);
+router.get('/', getMuseums);
 // get single museum
-router.get('/:id', getMuseum);
+router.get('/:museumId', getMuseum);
 // update a museum
-router.patch('/:id', authenticate(['ADMIN']), updateMuseum);
+router.patch('/:museumId', authenticate(['ADMIN']), updateMuseum);
 // create a museum
 router.post('/', authenticate(['ADMIN']), createMuseum);
 // delete a museum
-router.delete('/:id', authenticate(['ADMIN']), deleteMuseum);
+router.delete('/:museumId', authenticate(['ADMIN']), deleteMuseum);
 
 export default router;

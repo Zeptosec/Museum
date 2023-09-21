@@ -50,13 +50,12 @@ async function onSubmit() {
         const formdata = new FormData();
         if (itemData.value.image)
             formdata.append('image', itemData.value.image);
-        formdata.append('title', itemData.value.name);
         formdata.append('description', itemData.value.description);
-        const { json, response } = await AuthFetch(`${config.public.apiBase}/v1/item/${route.params.id}/${route.params.cid}`, {
+        formdata.append('title', itemData.value.name);
+        const { json, response } = await AuthFetch(`${config.public.apiBase}/v1/items/${route.params.id}/${route.params.cid}`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${userStore.user.accessToken}`,
-                'Content-Type': 'multipart/form-data'
             },
             body: formdata
         })
@@ -95,7 +94,7 @@ function onFileChange(e: any) {
 }
 
 onMounted(() => {
-    if (userStore.user && userStore.user.role !== 'ADMIN') {
+    if (!userStore.user || userStore.user.role !== 'ADMIN') {
         router.replace('/');
     }
 })

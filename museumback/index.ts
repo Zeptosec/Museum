@@ -21,9 +21,9 @@ app.use(cookieParser());
 app.use(formidable());
 app.use('/api/auth', authRouter);
 app.use('/api/v1/admin', adminRouter);
-app.use('/api/v1/museum', museumRouter);
-app.use('/api/v1/category', categoryRouter);
-app.use('/api/v1/item', itemRouter);
+app.use('/api/v1/museums', museumRouter);
+app.use('/api/v1/categories', categoryRouter);
+app.use('/api/v1/items', itemRouter);
 app.get('/', (_req, _res) => {
     _res.send("Express Oi!");
 });

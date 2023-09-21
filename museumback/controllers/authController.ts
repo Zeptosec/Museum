@@ -29,7 +29,7 @@ export async function register(req: Request, res: Response, next: NextFunction) 
 
 export async function login(req: Request, res: Response, next: NextFunction) {
     try {
-        const userdata = loginValidation.parse(req.body);
+        const userdata = loginValidation.parse(req.fields);
         const user = await prisma.user.findUnique({
             where: {
                 email: userdata.email

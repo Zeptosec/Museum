@@ -27,7 +27,7 @@ model User {
 
 model RefreshTokens {
     id      Int      @id @default(autoincrement())
-    user    User     @relation(fields: [userId], references: [id])
+    user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
     token   String
     expires DateTime
     userId  Int
@@ -46,28 +46,31 @@ model Category {
     name         String
     description  String?
     UserCategory UserCategory[]
-    museum       Museum         @relation(fields: [museumId], references: [id])
+    museum       Museum         @relation(fields: [museumId], references: [id], onDelete: Cascade)
     museumId     Int
+    items        Item[]
 }
 
 // join table for user many to many category relation
 model UserCategory {
-    user       User     @relation(fields: [userId], references: [id], name: "myCategories")
+    user       User     @relation(fields: [userId], references: [id], name: "myCategories", onDelete: Cascade)
     userId     Int
     category   Category @relation(fields: [categoryId], references: [id])
     categoryId Int
     assignedAt DateTime @default(now())
-    assignedBy User     @relation(fields: [assignorId], references: [id], name: "givenCategories")
+    assignedBy User     @relation(fields: [assignorId], references: [id], name: "givenCategories", onDelete: Cascade)
     assignorId Int
 
     @@id([userId, categoryId])
 }
 
 model Item {
-    id          Int     @id @default(autoincrement())
+    id          Int      @id @default(autoincrement())
     title       String
     description String?
     imageUrl    String?
+    Category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+    categoryId  Int
 }
 
 enum Role {

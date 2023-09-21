@@ -15,6 +15,7 @@ export function getZodError(err: unknown): FormattedZodError[] | undefined {
                 })
             }
         }
+        if (rez.length === 0) return undefined;
         return rez;
     }
 }
@@ -28,7 +29,7 @@ export function getError(err: unknown): string {
     const rr = getZodError(err);
     if (rr) {
         return rr.map(w => `${w.field}: ${w.message}`).join(', ');
-    } else if (err && typeof(err) === 'object' && "errors" in err && Array.isArray(err.errors)) {
+    } else if (err && typeof (err) === 'object' && "errors" in err && Array.isArray(err.errors)) {
         return err.errors.join(', ');
     } else {
         return "An error occurred!";
