@@ -9,7 +9,7 @@ router.get('/:museumId', getCategories);
 // get single museum category
 router.get('/:museumId/:categoryId', getCategory);
 // update museum category
-router.put('/:museumId/:categoryId', authenticate(['ADMIN']), updateCategory);
+router.put('/:categoryId', authenticate(['ADMIN']), updateCategory);
 // create museum category
 router.post('/:museumId', authenticate(['ADMIN']), createCategory);
 // delete museum category

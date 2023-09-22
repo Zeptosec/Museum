@@ -1,18 +1,18 @@
 import { Router } from "express";
 import authenticate from "../middleware/authenticated";
-import { createItem } from "../controllers/itemController";
+import { createItem, deleteItem, getItem, getItems, updateItem } from "../controllers/itemController";
 
 const router = Router();
 
 // get items
-// router.get('/', getMuseums);
+router.get('/:categoryId', getItems);
 // get single item
-// router.get('/:id', getMuseum);
+router.get('/:categoryId/:itemId', getItem);
 // update an item
-// router.patch('/:id', authenticate(['ADMIN']), updateMuseum);
+router.put('/:itemId', authenticate(['ADMIN', 'CURATOR']), updateItem);
 // create an item
 router.post('/:categoryId', authenticate(['ADMIN']), createItem);
 // delete an item
-// router.delete('/:id', authenticate(['ADMIN']), deleteMuseum);
+router.delete('/:itemId', authenticate(['ADMIN']), deleteItem);
 
 export default router;

@@ -1,12 +1,14 @@
 import { NextFunction, Request, Response } from "express";
 import { prisma } from "../lib/prisma";
 import { z } from "zod";
-import { validateMuseumId, validateMuseumIdCategoryId, validatePagination } from "../utils/validations";
+import { validateCategoryId, validateImage, validateMuseumId, validateMuseumIdCategoryId, validatePagination } from "../utils/validations";
+import { uploadFile } from "../lib/storage";
 
 export async function getCategories(req: Request, res: Response, next: NextFunction) {
     try {
         const params = validateMuseumId.parse(req.params);
         const query = validatePagination.parse(req.query);
+
         const categories = await prisma.category.findMany({
             take: query.pageSize,
             skip: (query.page - 1) * query.pageSize,
@@ -52,7 +54,8 @@ const validateCreateParams = z.object({
 export async function createCategory(req: Request, res: Response, next: NextFunction) {
     try {
         const params = validateMuseumId.parse(req.params);
-        const body = validateCreateParams.parse(req.body);
+        const body = validateCreateParams.parse(req.fields);
+        const files = validateImage.parse(req.files);
         const mus = await prisma.museum.findFirst({
             where: {
                 id: params.museumId
@@ -62,11 +65,16 @@ export async function createCategory(req: Request, res: Response, next: NextFunc
             }
         });
         if (!mus) return res.status(404).json({ errors: ['Museum not found!'] });
+        let url = undefined;
+        if (files?.image) {
+            url = await uploadFile(files.image.path);
+        }
         const category = await prisma.category.create({
             data: {
                 museumId: params.museumId,
                 description: body.description,
-                name: body.name
+                name: body.name,
+                imageUrl: url
             }
         })
         return res.status(201).json({ category });
@@ -78,28 +86,36 @@ export async function createCategory(req: Request, res: Response, next: NextFunc
 const validateUpdateParams = z.object({
     description: z.string(),
     name: z.string(),
+    museumId: z.number()
 })
 export async function updateCategory(req: Request, res: Response, next: NextFunction) {
     try {
-        const params = validateMuseumIdCategoryId.parse(req.params);
-        const body = validateUpdateParams.parse(req.body);
+        const params = validateCategoryId.parse(req.params);
+        const body = validateUpdateParams.parse(req.fields);
+        const files = validateImage.parse(req.files);
         const mus = await prisma.museum.findFirst({
             where: {
-                id: params.museumId
+                id: body.museumId
             },
             select: {
                 id: true
             }
         });
         if (!mus) return res.status(404).json({ errors: ['Museum not found!'] });
+        let url = undefined;
+        if (files?.image) {
+            url = await uploadFile(files.image.path);
+        }
         const category = await prisma.category.update({
             where: {
                 id: params.categoryId
             },
             data: {
-                museumId: params.museumId,
+                museumId: body.museumId,
                 description: body.description,
-                name: body.name
+                name: body.name,
+                ...(url ? { imageUrl: url } : {})
+
             }
         });
         return res.status(200).json({ category });

@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { prisma } from "../lib/prisma";
 import { z } from "zod";
-import { validateMuseumId, validatePagination } from "../utils/validations";
+import { validateImage, validateMuseumId, validatePagination } from "../utils/validations";
+import { uploadFile } from "../lib/storage";
 
 export async function getMuseums(req: Request, res: Response, next: NextFunction) {
     try {
@@ -33,15 +34,21 @@ export async function getMuseum(req: Request, res: Response, next: NextFunction)
 
 const validateCreateParams = z.object({
     description: z.string(),
-    name: z.string()
+    name: z.string(),
 })
 export async function createMuseum(req: Request, res: Response, next: NextFunction) {
     try {
-        const body = validateCreateParams.parse(req.body);
+        const body = validateCreateParams.parse(req.fields);
+        const files = validateImage.parse(req.files);
+        let url = undefined;
+        if (files?.image) {
+            url = await uploadFile(files.image.path);
+        }
         const mus = await prisma.museum.create({
             data: {
                 description: body.description,
-                name: body.name
+                name: body.name,
+                imageUrl: url
             }
         })
         return res.status(201).json({ museum: mus });
@@ -51,7 +58,6 @@ export async function createMuseum(req: Request, res: Response, next: NextFuncti
 }
 
 const validateUpdateParams = z.object({
-    id: z.number().min(0),
     description: z.string(),
     name: z.string()
 })
@@ -59,7 +65,12 @@ const validateUpdateParams = z.object({
 export async function updateMuseum(req: Request, res: Response, next: NextFunction) {
     try {
         const urlParams = validateMuseumId.parse(req.params);
-        const params = validateUpdateParams.parse(req.body);
+        const params = validateUpdateParams.parse(req.fields);
+        const files = validateImage.parse(req.files);
+        let url = undefined;
+        if (files?.image) {
+            url = await uploadFile(files.image.path);
+        }
         const mus = await prisma.museum.update({
             where: {
                 id: urlParams.museumId
@@ -67,6 +78,7 @@ export async function updateMuseum(req: Request, res: Response, next: NextFuncti
             data: {
                 description: params.description,
                 name: params.name,
+                ...(url ? { imageUrl: url } : {})
             }
         })
         return res.status(200).json({ museum: mus });

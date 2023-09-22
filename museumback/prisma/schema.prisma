@@ -38,6 +38,7 @@ model Museum {
     name        String
     description String?
     categories  Category[]
+    imageUrl    String?
 }
 
 model Category {
@@ -49,6 +50,7 @@ model Category {
     museum       Museum         @relation(fields: [museumId], references: [id], onDelete: Cascade)
     museumId     Int
     items        Item[]
+    imageUrl     String?
 }
 
 // join table for user many to many category relation

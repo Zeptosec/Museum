@@ -9,7 +9,7 @@ router.get('/', getMuseums);
 // get single museum
 router.get('/:museumId', getMuseum);
 // update a museum
-router.patch('/:museumId', authenticate(['ADMIN']), updateMuseum);
+router.put('/:museumId', authenticate(['ADMIN']), updateMuseum);
 // create a museum
 router.post('/', authenticate(['ADMIN']), createMuseum);
 // delete a museum
