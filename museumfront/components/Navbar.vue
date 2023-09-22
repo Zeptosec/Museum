@@ -3,7 +3,7 @@
         <div>
             <NuxtLink to="/">
                 <h2 class="text-2xl font-bold">
-                    Museum
+                    Museum app
                 </h2>
             </NuxtLink>
         </div>
@@ -23,7 +23,7 @@
                 <NuxtLink v-if="userStore.user.role === 'ADMIN'" to="/admin/users">
                     Users
                 </NuxtLink>
-                <NuxtLink v-if="userStore.user.role === 'ADMIN'" to="/admin/museum">New museum</NuxtLink>
+                <!-- <NuxtLink v-if="userStore.user.role === 'ADMIN'" to="/admin/museum">New museum</NuxtLink> -->
             </div>
             <template #fallback>
                 <Loader class="text-sm mt-2" />

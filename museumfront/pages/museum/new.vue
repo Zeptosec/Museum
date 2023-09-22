@@ -1,17 +1,18 @@
 <template>
-    <div class="mx-auto max-w-xl pb-4">
-        <h1 class="text-2xl font-bold text-center">New category</h1>
+    <div class="mx-auto max-w-xl">
+        <h1 class="text-2xl font-bold text-center">New museum</h1>
         <form @submit.prevent="onSubmit" class="mt-4 text-lg grid gap-4">
-            <input required type="text" name="name" v-model="museumData.name" placeholder="Title of the category"
+            <input required type="text" name="name" v-model="museumData.name" placeholder="Name"
                 :class="errorObj.fields.includes('name') ? 'ring-2 ring-error focus:ring-error focus:ring-2' : ''" />
-            <textarea name="dsc" id="dsc" cols="30" rows="10" placeholder="Description about the category..."
+            <textarea name="dsc" id="dsc" cols="30" rows="10" placeholder="Description about the museum..."
                 v-model="museumData.description"
                 :class="errorObj.fields.includes('description') ? 'ring-2 ring-error focus:ring-error focus:ring-2' : ''"></textarea>
             <input v-on:change="onFileChange" type="file" id="img" name="img" accept="image/jpg, image/png, image/jpeg" />
             <Loader v-if="pending" class="text-xl mx-auto" />
             <button v-else>
-                Add
+                Create
             </button>
+
         </form>
         <p ref="errorRef" v-if="errorObj.msg.length > 0" class="text-error text-center font-bold text-xl mt-1">{{
             errorObj.msg }}</p>
@@ -22,7 +23,6 @@
 
 <script setup lang="ts">
 import { useUserStore } from '~/stores/userStore';
-const route = useRoute();
 const router = useRouter();
 const userStore = useUserStore();
 const config = useRuntimeConfig();
@@ -65,13 +65,14 @@ async function onSubmit() {
             formdata.append('image', museumData.value.image);
         formdata.append('description', museumData.value.description);
         formdata.append('name', museumData.value.name);
-        const { json, response } = await AuthFetch(`${config.public.apiBase}/v1/categories/${route.params.id}`, {
+        const { json, response } = await AuthFetch(`${config.public.apiBase}/v1/museums`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${userStore.user.accessToken}`,
             },
             body: formdata
         })
+
         if (response.ok) {
             errorObj.value.succ = "Created!";
             nextTick(() => {
@@ -113,7 +114,7 @@ async function onSubmit() {
 }
 
 onMounted(() => {
-    if (userStore.user && userStore.user.role !== 'ADMIN') {
+    if (!userStore.user || userStore.user.role !== 'ADMIN') {
         router.replace('/');
     }
 })

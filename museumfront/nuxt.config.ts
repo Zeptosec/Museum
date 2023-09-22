@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  
+
   devtools: { enabled: true },
   runtimeConfig: {
     // The private keys which are only available server-side
@@ -20,6 +20,7 @@ export default defineNuxtConfig({
   modules: [
     '@pinia/nuxt',
     '@pinia-plugin-persistedstate/nuxt',
+    '@nuxt/image',
   ],
   piniaPersistedstate: {
     cookieOptions: {

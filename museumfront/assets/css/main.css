@@ -57,12 +57,23 @@ a {
     line-height: 32px;
 }
 
+
+.glow {
+    transition: 200ms box-shadow ease-in;
+    box-shadow: none;
+}
+
+.glow:hover {
+    box-shadow: 0 0 10px 3px rgb(var(--color-tertiary) / 0.5);
+}
+
 .router-link-exact-active,
 a:hover {
     color: rgb(var(--color-tertiary));
 }
 
-input, textarea {
+input,
+textarea {
     padding: 12px 16px;
     border-radius: 0.375rem;
     width: 100%;
@@ -72,11 +83,13 @@ input, textarea {
     outline: none;
 }
 
-input:focus, textarea:focus {
+input:focus,
+textarea:focus {
     box-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) rgb(var(--color-tertiary));
 }
 
-input::placeholder, textarea::placeholder {
+input::placeholder,
+textarea::placeholder {
     color: rgb(var(--color-tertiary) / 0.5);
     outline-color: rgb(var(--color-tertiary));
 }

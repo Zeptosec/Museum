@@ -1,12 +1,15 @@
 <template>
     <div>
-        <div v-if="userStore.user?.role === 'ADMIN'" class="flex justify-center">
-            <NuxtLink to="/admin/newmuseum" class="px-3 py-1 rounded-xl bg-tertiary hover:text-secondary">New museum
-            </NuxtLink>
-        </div>
+        <ClientOnly>
+            <div v-if="userStore.user?.role === 'ADMIN'" class="flex justify-center">
+                <NuxtLink to="/museum/new" class="px-3 py-1 rounded-xl bg-tertiary hover:text-secondary">New museum
+                </NuxtLink>
+            </div>
+        </ClientOnly>
         <h1 class="text-4xl text-center font-bold py-2">Museums</h1>
-        <section>
-            <MuseumCard v-for="museum in museums" :key="museum.id" :museum="museum" />
+        <section class="grid gap-4 xl:grid-cols-2 pb-4">
+            <MuseumCard v-for="museum in museums" :key="museum.id" @remove="deleteMuseum" :museum="museum"
+                :edit="userStore.user?.role === 'ADMIN'" />
         </section>
         <p v-if="error.length > 0" class=" text-error font-bold text-xl text-center">{{ error }}</p>
     </div>
@@ -24,7 +27,8 @@ const pending = ref(false);
 export type MuseumData = {
     id: number,
     name: string,
-    description: string
+    description: string,
+    imageUrl?: string
 }
 
 async function fetchMuseums() {
@@ -50,4 +54,35 @@ async function fetchMuseums() {
     }
 }
 await fetchMuseums();
+
+const deleting = ref(false);
+async function deleteMuseum(id: number) {
+    if (deleting.value || !userStore.user) return;
+    deleting.value = true;
+    try {
+        const rs = await AuthFetch(`${config.public.apiBase}/v1/museums/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${userStore.user.accessToken}`
+            }
+        });
+        if (rs.response.ok) {
+            museums.value = museums.value.filter(w => w.id !== id);
+        } else {
+            console.log(rs.json);
+            if (rs.json)
+                alert(getError(rs.json));
+            else
+                alert("Failed to delete!");
+        }
+    } catch (err) {
+        console.error(err);
+        if (err instanceof Error)
+            alert(err.message);
+        else
+            alert("An error occurred!");
+    } finally {
+        deleting.value = false;
+    }
+}
 </script>
