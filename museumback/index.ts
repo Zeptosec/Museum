@@ -14,7 +14,7 @@ const app: express.Application = express();
 // adding root level middleware
 app.use(cors({
     'credentials': true,
-    'origin': ['http://127.0.0.1:3000', 'https://somevercel23.com', 'http://localhost:3000'] // allow to make requests from any origin for now...
+    'origin': ['http://127.0.0.1:3000', 'https://museum1.vercel.app', 'http://localhost:3000'] // allow to make requests from any origin for now...
 }))
 
 app.use(cookieParser());
