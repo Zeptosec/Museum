@@ -1,5 +1,4 @@
-import { useLocalStorage } from '@vueuse/core';
-import { defineStore, skipHydrate } from 'pinia'
+import { defineStore } from 'pinia'
 
 export const RolesEnum = {
     GUEST: 'GUEST',
@@ -21,7 +20,7 @@ export type UserData = {
 
 export const useUserStore = defineStore('user', () => {
     const user = ref<UserData | undefined>();
-    function setUser(newUser: UserData | undefined){
+    function setUser(newUser: UserData | undefined) {
         try {
             user.value = newUser;
         } catch (err) {
