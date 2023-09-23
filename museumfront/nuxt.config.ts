@@ -9,7 +9,7 @@ export default defineNuxtConfig({
     apiSecret: '123',
     // Keys within public are also exposed client-side
     public: {
-      apiBase: process.env.NODE_ENV === 'production' ? 'https://museumback.cyclic.cloud' : 'http://localhost:4000/api'
+      apiBase: 'https://museumback.cyclic.cloud' //'http://localhost:4000/api'
     }
   },
   css: ['~/assets/css/main.css'],
