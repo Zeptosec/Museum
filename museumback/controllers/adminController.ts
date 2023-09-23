@@ -19,9 +19,9 @@ const validateSetRole = z.object({
 
 export async function setRole(req: Request, res: Response, next: NextFunction) {
     try {
-        const params = validateSetRole.parse(req.body);
+        const params = validateSetRole.parse(req.fields);
         const user = res.locals.user as TokenPayload;
-        if(user.id === params.userid) return res.status(400).json({errors: ["Can't change your own role!"]})
+        if (user.id === params.userid) return res.status(400).json({ errors: ["Can't change your own role!"] })
         await prisma.user.update({
             where: {
                 id: params.userid,

@@ -4,6 +4,37 @@ import { z } from "zod";
 import { validateCategoryId, validateImage, validateMuseumId, validateMuseumIdCategoryId, validatePagination } from "../utils/validations";
 import { uploadFile } from "../lib/storage";
 
+
+export async function searchCategories(req: Request, res: Response, next: NextFunction) {
+    try {
+        const query = z.object({
+            name: z.string(),
+            museumId: z.preprocess(
+                a => parseInt(z.string().parse(a), 10),
+                z.number().min(0)
+            ).optional()
+        }).parse(req.query);
+        console.log(query)
+        const categories = await prisma.category.findMany({
+            take: 5,
+            where: {
+                name: {
+                    contains: query.name,
+                    mode: 'insensitive'
+                },
+                ...(query.museumId ? { museumId: query.museumId } : {})
+            },
+            select: {
+                name: true,
+                id: true
+            }
+        })
+        return res.status(200).json({ categories });
+    } catch (err) {
+        next(err);
+    }
+}
+
 export async function getCategories(req: Request, res: Response, next: NextFunction) {
     try {
         const params = validateMuseumId.parse(req.params);
@@ -21,8 +52,6 @@ export async function getCategories(req: Request, res: Response, next: NextFunct
         next(rr);
     }
 }
-
-
 
 export async function getCategory(req: Request, res: Response, next: NextFunction) {
     try {
@@ -129,10 +158,10 @@ export async function updateCategory(req: Request, res: Response, next: NextFunc
 
 export async function deleteCategory(req: Request, res: Response, next: NextFunction) {
     try {
-        const params = validateMuseumId.parse(req.params);
+        const params = validateCategoryId.parse(req.params);
         await prisma.category.delete({
             where: {
-                id: params.museumId
+                id: params.categoryId
             }
         });
         return res.status(204).send();

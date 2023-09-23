@@ -70,10 +70,24 @@ export async function getItem(req: Request, res: Response, next: NextFunction) {
             where: {
                 categoryId: params.categoryId,
                 id: params.itemId
+            },
+            include: {
+                Category: {
+                    include: {
+                        museum: {
+                            select: {
+                                id: true,
+                                name: true
+                            }
+                        }
+                    }
+                }
             }
         })
+        if (!item) return res.status(404).json({ errors: ['Item not found'] });
         return res.status(200).json({ item });
     } catch (err) {
+        console.log(err);
         next(err);
     }
 }
@@ -82,7 +96,10 @@ export async function updateItem(req: Request, res: Response, next: NextFunction
     try {
         const params = validateItemId.parse(req.params);
         const body = validateItemData.merge(z.object({
-            newCategoryId: z.number().min(0)
+            newCategoryId: z.preprocess(
+                a => parseInt(z.string().parse(a), 10),
+                z.number().min(0)
+            ),
         })).parse(req.fields);
 
         const user = res.locals.user as TokenPayload;
@@ -125,10 +142,10 @@ export async function updateItem(req: Request, res: Response, next: NextFunction
             data: {
                 title: body.title,
                 description: body.description,
-                categoryId: body.newCategoryId
+                categoryId: body.newCategoryId,
             }
         })
-        return res.status(200).send({item: updatedItem});
+        return res.status(200).send({ item: updatedItem });
     } catch (err) {
         next(err);
     }
