@@ -21,6 +21,7 @@
 }
 
 @layer base {
+
     html[data-theme="default"] {
         --color-primary: 34 40 49;
         --color-secondary: 57 62 70;
@@ -28,6 +29,15 @@
         --color-quaternary: 238 238 238;
         --color-error: 239 68 68;
     }
+
+}
+
+html {
+    --color-primary: 34 40 49;
+    --color-secondary: 57 62 70;
+    --color-tertiary: 0 173 181;
+    --color-quaternary: 238 238 238;
+    --color-error: 239 68 68;
 }
 
 button {

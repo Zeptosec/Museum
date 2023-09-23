@@ -13,8 +13,10 @@
                 Add
             </button>
         </form>
-        <p v-if="errorObj.msg.length > 0" class="text-error text-center font-bold text-xl mt-1">{{ errorObj.msg }}</p>
-        <p v-if="errorObj.succ.length > 0" class="text-lime-500 text-center font-bold text-xl mt-1">{{ errorObj.succ }}</p>
+        <p ref="errorRef" v-if="errorObj.msg.length > 0" class="text-error text-center font-bold text-xl mt-1">{{
+            errorObj.msg }}</p>
+        <p ref="successRef" v-if="errorObj.succ.length > 0" class="text-lime-500 text-center font-bold text-xl mt-1">{{
+            errorObj.succ }}</p>
     </div>
 </template>
 
@@ -23,6 +25,8 @@ import { useUserStore } from '~/stores/userStore';
 const route = useRoute();
 const router = useRouter();
 const userStore = useUserStore();
+const errorRef = ref();
+const successRef = ref();
 const config = useRuntimeConfig();
 const itemData = ref({
     name: '',
@@ -61,6 +65,11 @@ async function onSubmit() {
         })
         if (response.ok) {
             errorObj.value.succ = "Created!";
+            nextTick(() => {
+                if (successRef.value) {
+                    successRef.value.scrollIntoView({ behaviour: 'smooth' });
+                }
+            })
         } else {
             const rr = getZodError(json);
             if (rr) {
@@ -70,6 +79,11 @@ async function onSubmit() {
             } else {
                 errorObj.value.msg = "An error occurred!";
             }
+            nextTick(() => {
+                if (errorRef.value) {
+                    errorRef.value.scrollIntoView({ behaviour: 'smooth' });
+                }
+            })
         }
     } catch (rr: unknown) {
         console.error("Got an error");
@@ -79,6 +93,11 @@ async function onSubmit() {
         } else {
             errorObj.value.msg = "Failed to fetch";
         }
+        nextTick(() => {
+            if (errorRef.value) {
+                errorRef.value.scrollIntoView({ behaviour: 'smooth' });
+            }
+        })
     } finally {
         pending.value = false;
     }

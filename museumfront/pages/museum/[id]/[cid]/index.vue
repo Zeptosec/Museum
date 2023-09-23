@@ -8,12 +8,12 @@
                 </NuxtLink>
             </div>
         </ClientOnly>
-        <h2 class="text-center text-2xl font-bold">Categories</h2>
-        <section class="grid gap-2 xl:grid-cols-2 mt-2 pb-4 ">
-            <p v-if="itemData.items.length === 0" class="text-center text-xl font-bold text-error">Category has no
-                items</p>
+        <h2 class="text-center text-2xl font-bold">Items</h2>
+        <p v-if="itemData.items.length === 0" class="text-center text-xl font-bold text-error">Category has no
+            items</p>
+        <section v-else class="grid gap-2 xl:grid-cols-2 mt-2 pb-4 ">
             <ItemCard v-for="item in itemData.items" :item="item" :museumId="category.category.museumId"
-                :edit="userStore.user?.role === 'ADMIN'" />
+                :edit="userStore.user?.role === 'ADMIN'" @remove="deleteItem" />
         </section>
     </div>
     <div v-else>
@@ -28,8 +28,39 @@ import { ItemData } from '~/components/ItemCard.vue';
 const route = useRoute()
 const userStore = useUserStore();
 const config = useRuntimeConfig();
-type APIItems = {
+export type APIItems = {
     items: ItemData[]
+}
+
+const deleting = ref(false);
+async function deleteItem(id: number) {
+    if (deleting.value || !userStore.user || !itemData.value) return;
+    deleting.value = true;
+    try {
+        const rs = await AuthFetch(`${config.public.apiBase}/v1/items/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${userStore.user.accessToken}`
+            }
+        });
+        if (rs.response.ok) {
+            itemData.value.items = itemData.value.items.filter(w => w.id !== id);
+        } else {
+            console.log(rs.json);
+            if (rs.json)
+                alert(getError(rs.json));
+            else
+                alert("Failed to delete!");
+        }
+    } catch (err) {
+        console.error(err);
+        if (err instanceof Error)
+            alert(err.message);
+        else
+            alert("An error occurred!");
+    } finally {
+        deleting.value = false;
+    }
 }
 
 const { data: itemData } = await useFetch<APIItems>(`${config.public.apiBase}/v1/items/${route.params.cid}`);

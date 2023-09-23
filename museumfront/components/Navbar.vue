@@ -16,7 +16,8 @@
                     Register
                 </NuxtLink>
             </div>
-            <div v-else>
+            <div v-else class="flex gap-2">
+                <p class="leading-[32px] text-tertiary">{{ userStore.user.name }}</p>
                 <button @click="logout" class="p-0 text-quaternary hover:text-tertiary bg-transparent">
                     Logout
                 </button>

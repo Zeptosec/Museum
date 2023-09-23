@@ -38,6 +38,12 @@ watch(focused, (curr, prev) => {
         }
     }
 })
+
+watch(props, (curr, prev) => {
+    if (props.selected)
+        searchVal.value = props.selected.text;
+    else searchVal.value = '';
+})
 const emit = defineEmits<{
     searched: [text: string],
     changed: [id: SearchOption]

@@ -11,9 +11,6 @@
                 }}</option>
             </select>
         </td>
-        <td>
-            {{ error }}
-        </td>
     </tr>
 </template>
 
@@ -55,6 +52,7 @@ async function changeRole(user: UserInfo, newRole: string) {
             error.value = "Failed to change role!";
             changed.value = 2;
             userRole.value = user.role;
+            alert(error.value)
         }
     } catch (rr) {
         changed.value = 2;
@@ -64,6 +62,7 @@ async function changeRole(user: UserInfo, newRole: string) {
             error.value = rr.message;
         } else
             error.value = "Failed to change role!";
+        alert(error.value)
     } finally {
         fetching.value = false;
     }

@@ -1,7 +1,7 @@
 <template>
     <div class="relative bg-secondary rounded-xl group max-w-xl mx-auto w-full overflow-hidden glow">
         <ClientOnly>
-            <NuxtLink v-if="edit" :to="`/museum/${props.museumId}/${props.item.categoryId}/${props.item.id}`"
+            <NuxtLink v-if="edit" :to="`/museum/${props.museumId}/${props.item.categoryId}/${props.item.id}/edit`"
                 class="absolute top-3 right-10 w-6 h-6 flex justify-center items-center">
                 <IconsPen />
             </NuxtLink>
