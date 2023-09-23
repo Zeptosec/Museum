@@ -16,11 +16,12 @@
                 <textarea name="dsc" id="dsc" cols="30" rows="10" placeholder="Description about the category..."
                     v-model="categoryData.description"
                     :class="errorObj.fields.includes('description') ? 'ring-2 ring-error focus:ring-error focus:ring-2' : ''"></textarea>
-                <v-select v-model="selected" :options="cities" :reduce="(item: any) => item.id"
-                    @option:selected="(city: any) => onSelected(city)" @option:deselected="(city: any) => onDeselected(city)"
-                    label="name"></v-select>
+                <SearchSelect @searched="searchChanged" :options="options" placeholder="Select a museum"
+                    @changed="selectedOption" :selected="categoryData.museum" />
                 <input v-on:change="onFileChange" type="file" id="img" name="img"
                     accept="image/jpg, image/png, image/jpeg" />
+                <NuxtImg v-if="categoryData.imageUrl" :src="categoryData.imageUrl"
+                    class="rounded-xl max-h-[300px] object-cover w-full" />
                 <Loader v-if="pending" class="text-xl mx-auto" />
                 <button v-else>
                     Update
@@ -36,25 +37,8 @@
 </template>
 
 <script setup lang="ts">
+import { SearchOption } from '~/components/SearchSelect.vue';
 import { useUserStore } from '~/stores/userStore';
-
-
-const selected = ref('');
-const cities = ref([
-    { id: 1, name: 'city 1', region: 'region A' },
-    { id: 2, name: 'city 2', region: 'region A' },
-    { id: 3, name: 'city 3', region: 'region B' },
-    { id: 4, name: 'city 4', region: 'region C' },
-    { id: 5, name: 'city 5', region: 'region D' },
-])
-
-function onSelected(opt: any) {
-    console.log(opt);
-}
-
-function onDeselected(opt: any) {
-    console.log(opt);
-}
 
 const route = useRoute();
 const router = useRouter();
@@ -63,10 +47,18 @@ const config = useRuntimeConfig();
 const errorRef = ref();
 const successRef = ref();
 const title = ref('');
+
+const options = ref<SearchOption[]>([])
+
 const categoryData = ref({
     name: '',
     description: '',
-    image: undefined
+    image: undefined,
+    museum: {
+        id: -1,
+        text: ''
+    },
+    imageUrl: undefined,
 })
 const errorObj = ref<{
     fields: string[],
@@ -83,11 +75,30 @@ const fetching = ref({
     error: ''
 });
 
-const options = ref([
-    'foo',
-    'bar',
-    'baz'
-]);
+function selectedOption(opt: SearchOption) {
+    categoryData.value.museum = opt;
+}
+
+let abortContrl: AbortController | undefined;
+async function searchChanged(text: string) {
+    if (abortContrl) abortContrl.abort();
+    abortContrl = new AbortController()
+    try {
+        const { response, json } = await AuthFetch(`${config.public.apiBase}/v1/museums/search?name=${text}`, {
+            headers: {
+                'authorization': `Bearer ${userStore.user?.accessToken}`
+            },
+            signal: abortContrl.signal
+        })
+        if (response.ok) {
+            options.value = json.museums.map((w: any) => ({ id: w.id, text: w.name }));
+        } else {
+            options.value = []
+        }
+    } catch (err) {
+        console.error(err);
+    }
+}
 
 function onFileChange(e: any) {
     var files = e.target.files || e.dataTransfer.files;
@@ -96,6 +107,11 @@ function onFileChange(e: any) {
         return;
     }
     categoryData.value.image = files[0];
+    const imgUrl = categoryData.value.imageUrl as string | undefined;
+    if (imgUrl && imgUrl.startsWith('blob')) {
+        URL.revokeObjectURL(imgUrl);
+    }
+    categoryData.value.imageUrl = URL.createObjectURL(files[0]) as any;
 }
 
 async function onSubmit() {
@@ -110,6 +126,7 @@ async function onSubmit() {
             formdata.append('image', categoryData.value.image);
         formdata.append('description', categoryData.value.description);
         formdata.append('name', categoryData.value.name);
+        formdata.append('museumId', categoryData.value.museum.id.toString());
         const { json, response } = await AuthFetch(`${config.public.apiBase}/v1/categories/${route.params.cid}`, {
             method: 'PUT',
             headers: {
@@ -168,6 +185,10 @@ onMounted(async () => {
         if (rs.ok) {
             fetching.value.state = false;
             categoryData.value = json.category;
+            categoryData.value.museum = {
+                text: json.category.museum.name,
+                id: json.category.museumId
+            }
             title.value = json.category.name;
         } else {
             fetching.value.error = getError(json);

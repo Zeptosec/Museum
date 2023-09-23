@@ -86,7 +86,10 @@ export async function createCategory(req: Request, res: Response, next: NextFunc
 const validateUpdateParams = z.object({
     description: z.string(),
     name: z.string(),
-    museumId: z.number()
+    museumId: z.preprocess(
+        a => parseInt(z.string().parse(a), 10),
+        z.number().min(0)
+    )
 })
 export async function updateCategory(req: Request, res: Response, next: NextFunction) {
     try {

@@ -1,3 +1,5 @@
+import { ModelSelect } from "vue-search-select";
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
 
@@ -20,7 +22,7 @@ export default defineNuxtConfig({
   modules: [
     '@pinia/nuxt',
     '@pinia-plugin-persistedstate/nuxt',
-    '@nuxt/image',
+    '@nuxt/image'
   ],
   piniaPersistedstate: {
     cookieOptions: {

@@ -4,6 +4,31 @@ import { z } from "zod";
 import { validateImage, validateMuseumId, validatePagination } from "../utils/validations";
 import { uploadFile } from "../lib/storage";
 
+export async function searchMuseums(req: Request, res: Response, next: NextFunction) {
+    try {
+        const query = z.object({
+            name: z.string()
+        }).parse(req.query);
+
+        const museums = await prisma.museum.findMany({
+            take: 5,
+            where: {
+                name: {
+                    contains: query.name,
+                    mode: 'insensitive'
+                }
+            },
+            select: {
+                name: true,
+                id: true
+            }
+        })
+        return res.status(200).json({ museums });
+    } catch (err) {
+        next(err);
+    }
+}
+
 export async function getMuseums(req: Request, res: Response, next: NextFunction) {
     try {
         const query = validatePagination.parse(req.query);

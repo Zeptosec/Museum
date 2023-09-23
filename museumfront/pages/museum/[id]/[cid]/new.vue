@@ -52,7 +52,7 @@ async function onSubmit() {
             formdata.append('image', itemData.value.image);
         formdata.append('description', itemData.value.description);
         formdata.append('title', itemData.value.name);
-        const { json, response } = await AuthFetch(`${config.public.apiBase}/v1/items/${route.params.id}/${route.params.cid}`, {
+        const { json, response } = await AuthFetch(`${config.public.apiBase}/v1/items/${route.params.cid}`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${userStore.user.accessToken}`,
