@@ -1,11 +1,11 @@
 {
   "name": "museumback",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "index.ts",
   "scripts": {
     "build": "npx tsc",
-    "start": "npx tsc && node build/index.js",
+    "start": "npx tsc && node index.js",
     "dev": "npx nodemon index.ts"
   },
   "keywords": [],
