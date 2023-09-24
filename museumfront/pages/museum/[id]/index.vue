@@ -10,9 +10,9 @@
             </div>
         </ClientOnly>
         <h2 class="text-center text-2xl font-bold">Categories</h2>
+        <p v-if="cdata && cdata.categories.length === 0" class="text-center text-xl font-bold text-error">Museum has no
+            categories</p>
         <section v-if="cdata" class="grid gap-2 xl:grid-cols-2 mt-2 pb-4">
-            <p v-if="cdata.categories.length === 0" class="text-center text-xl font-bold text-error">Museum has no
-                categories</p>
             <CategoryCard v-for="category in cdata.categories" :category="category" :museum="data.museum"
                 :edit="userStore.user?.role === 'ADMIN'" @remove="deleteCategory" />
         </section>
