@@ -8,6 +8,8 @@
                 v-model="museumData.description"
                 :class="errorObj.fields.includes('description') ? 'ring-2 ring-error focus:ring-error focus:ring-2' : ''"></textarea>
             <input v-on:change="onFileChange" type="file" id="img" name="img" accept="image/jpg, image/png, image/jpeg" />
+            <NuxtImg v-if="museumData.imageUrl" :src="museumData.imageUrl"
+                class="rounded-xl max-h-[300px] object-cover w-full" />
             <Loader v-if="pending" class="text-xl mx-auto" />
             <button v-else>
                 Add
@@ -28,10 +30,15 @@ const userStore = useUserStore();
 const config = useRuntimeConfig();
 const errorRef = ref();
 const successRef = ref();
-const museumData = ref({
+type CreateMuseumData = {
+    name: string,
+    description: string,
+    image?: File,
+    imageUrl?: string
+}
+const museumData = ref<CreateMuseumData>({
     name: '',
     description: '',
-    image: undefined
 })
 const errorObj = ref<{
     fields: string[],
@@ -51,6 +58,11 @@ function onFileChange(e: any) {
         return;
     }
     museumData.value.image = files[0];
+    const imgUrl = museumData.value.imageUrl as string | undefined;
+    if (imgUrl && imgUrl.startsWith('blob')) {
+        URL.revokeObjectURL(imgUrl);
+    }
+    museumData.value.imageUrl = URL.createObjectURL(files[0]);
 }
 
 async function onSubmit() {

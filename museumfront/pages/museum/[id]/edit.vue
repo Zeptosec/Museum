@@ -8,7 +8,7 @@
                 <Loader class="text-4xl mx-auto" />
             </div>
         </div>
-        <div v-else class="mx-auto max-w-xl">
+        <div v-else-if="museumData" class="mx-auto max-w-xl pb-8">
             <h1 class="text-2xl font-bold text-center">Editing {{ title }}</h1>
             <form @submit.prevent="onSubmit" class="mt-4 text-lg grid gap-4">
                 <input required type="text" name="name" v-model="museumData.name" placeholder="Title of the category"
@@ -18,6 +18,8 @@
                     :class="errorObj.fields.includes('description') ? 'ring-2 ring-error focus:ring-error focus:ring-2' : ''"></textarea>
                 <input v-on:change="onFileChange" placeholder="New image" type="file" id="img" name="img"
                     accept="image/jpg, image/png, image/jpeg" />
+                <NuxtImg v-if="museumData.imageUrl" :src="museumData.imageUrl"
+                    class="rounded-xl max-h-[300px] object-cover w-full" />
                 <Loader v-if="pending" class="text-xl mx-auto" />
                 <button v-else>
                     Update
@@ -41,11 +43,14 @@ const config = useRuntimeConfig();
 const errorRef = ref();
 const successRef = ref();
 const title = ref('');
-const museumData = ref({
-    name: '',
-    description: '',
-    image: undefined
-})
+export type EditingMuseumData = {
+    description: string,
+    id: number,
+    imageUrl?: string,
+    name: string,
+    image?: File,
+}
+const museumData = ref<EditingMuseumData | undefined>()
 const errorObj = ref<{
     fields: string[],
     msg: string,
@@ -61,17 +66,24 @@ const fetching = ref({
     error: ''
 });
 
+
 function onFileChange(e: any) {
+    if (!museumData.value) return;
     var files = e.target.files || e.dataTransfer.files;
     if (!files.length) {
         museumData.value.image = undefined;
         return;
     }
     museumData.value.image = files[0];
+    const imgUrl = museumData.value.imageUrl as string | undefined;
+    if (imgUrl && imgUrl.startsWith('blob')) {
+        URL.revokeObjectURL(imgUrl);
+    }
+    museumData.value.imageUrl = URL.createObjectURL(files[0]);
 }
 
 async function onSubmit() {
-    if (pending.value || !userStore.user) return;
+    if (pending.value || !userStore.user || !museumData.value) return;
     errorObj.value.msg = "";
     errorObj.value.fields = [];
     errorObj.value.succ = "";
@@ -139,8 +151,8 @@ onMounted(async () => {
         const json = await rs.json();
         if (rs.ok) {
             fetching.value.state = false;
-            museumData.value = json.museum;
-            title.value = json.museum.name;
+            museumData.value = json.museum as EditingMuseumData;
+            title.value = museumData.value.name;
         } else {
             fetching.value.error = getError(json);
         }

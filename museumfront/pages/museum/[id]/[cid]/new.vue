@@ -1,13 +1,15 @@
 <template>
-    <div class="mx-auto max-w-xl">
+    <div class="mx-auto max-w-xl pb-8">
         <h1 class="text-2xl font-bold text-center">New item</h1>
         <form @submit.prevent="onSubmit" class="mt-4 text-lg grid gap-4">
-            <input required type="text" name="name" v-model="itemData.name" placeholder="Title of the item"
+            <input required type="text" name="name" v-model="itemData.title" placeholder="Title of the item"
                 :class="errorObj.fields.includes('name') ? 'ring-2 ring-error focus:ring-error focus:ring-2' : ''" />
             <textarea name="dsc" id="dsc" cols="30" rows="10" placeholder="Description about the item..."
                 v-model="itemData.description"
                 :class="errorObj.fields.includes('description') ? 'ring-2 ring-error focus:ring-error focus:ring-2' : ''"></textarea>
             <input v-on:change="onFileChange" type="file" id="img" name="img" accept="image/jpg, image/png, image/jpeg" />
+            <NuxtImg v-if="itemData.imageUrl" :src="itemData.imageUrl"
+                class="rounded-xl max-h-[300px] object-cover w-full" />
             <Loader v-if="pending" class="text-xl mx-auto" />
             <button v-else>
                 Add
@@ -28,10 +30,17 @@ const userStore = useUserStore();
 const errorRef = ref();
 const successRef = ref();
 const config = useRuntimeConfig();
-const itemData = ref({
-    name: '',
+
+type CreateItemData = {
+    title: string,
+    description: string,
+    imageUrl?: string,
+    image?: File
+}
+
+const itemData = ref<CreateItemData>({
+    title: '',
     description: '',
-    image: null
 })
 const errorObj = ref<{
     fields: string[],
@@ -55,7 +64,7 @@ async function onSubmit() {
         if (itemData.value.image)
             formdata.append('image', itemData.value.image);
         formdata.append('description', itemData.value.description);
-        formdata.append('title', itemData.value.name);
+        formdata.append('title', itemData.value.title);
         const { json, response } = await AuthFetch(`${config.public.apiBase}/v1/items/${route.params.cid}`, {
             method: 'POST',
             headers: {
@@ -106,10 +115,15 @@ async function onSubmit() {
 function onFileChange(e: any) {
     var files = e.target.files || e.dataTransfer.files;
     if (!files.length) {
-        itemData.value.image = null;
+        itemData.value.image = undefined;
         return;
     }
     itemData.value.image = files[0];
+    const imgUrl = itemData.value.imageUrl as string | undefined;
+    if (imgUrl && imgUrl.startsWith('blob')) {
+        URL.revokeObjectURL(imgUrl);
+    }
+    itemData.value.imageUrl = URL.createObjectURL(files[0]);
 }
 
 onMounted(() => {

@@ -8,7 +8,7 @@
                 <Loader class="text-4xl mx-auto" />
             </div>
         </div>
-        <div v-else class="mx-auto max-w-xl">
+        <div v-else class="mx-auto max-w-xl pb-8">
             <h1 class="text-2xl font-bold text-center">Editing category {{ title }}</h1>
             <form @submit.prevent="onSubmit" class="mt-4 text-lg grid gap-4">
                 <input required type="text" name="name" v-model="categoryData.name" placeholder="Title of the category"
