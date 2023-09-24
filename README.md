@@ -38,3 +38,6 @@ npm run dev
 3. Guests can:
     1. Preview item details.
     2. Preview category details.
+
+## Deployment diagram
+![Deployment diagram](assets/deployment_diagram.png)
