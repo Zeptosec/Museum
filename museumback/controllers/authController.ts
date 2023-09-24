@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 import { generateTokens, validateAccessToken, validateRefreshToken } from "../utils/tokenator";
 export async function register(req: Request, res: Response, next: NextFunction) {
     try {
-        const userdata = registerValidation.parse(req.body);
+        const userdata = registerValidation.parse(req.fields);
         const dbuser = await prisma.user.findUnique({
             where: {
                 email: userdata.email
