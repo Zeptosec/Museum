@@ -28,6 +28,10 @@ cd museum/museumfront
 npm run dev
 ```
 
+## Purpose
+To let visitor read about the museum and it's items on the internet.
+The platform is made of two parts: frontend, where users can view the page with nicely formatted data, and backend where data can be modified or fetched from database and served to user using API. 
+
 ## Functional requirements
 1. Admin can:
     1. Manage curators.
@@ -38,6 +42,12 @@ npm run dev
 3. Guests can:
     1. Preview item details.
     2. Preview category details.
+    3. Preview museum details.
+    4. Register
+    5. Login
+
+## Domain
+![Domain diagram](assets/connections.png)
 
 ## Deployment diagram
 ![Deployment diagram](assets/deployment_diagram.png)
