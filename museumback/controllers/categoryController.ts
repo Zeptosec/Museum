@@ -4,17 +4,12 @@ import { z } from "zod";
 import { validateCategoryId, validateImage, validateMuseumId, validateMuseumIdCategoryId, validatePagination } from "../utils/validations";
 import { uploadFile } from "../lib/storage";
 
-
 export async function searchCategories(req: Request, res: Response, next: NextFunction) {
     try {
         const query = z.object({
-            name: z.string(),
-            museumId: z.preprocess(
-                a => parseInt(z.string().parse(a), 10),
-                z.number().min(0)
-            ).optional()
+            name: z.string().default(''),
         }).parse(req.query);
-        console.log(query)
+        const params = validateMuseumId.parse(req.params);
         const categories = await prisma.category.findMany({
             take: 5,
             where: {
@@ -22,7 +17,7 @@ export async function searchCategories(req: Request, res: Response, next: NextFu
                     contains: query.name,
                     mode: 'insensitive'
                 },
-                ...(query.museumId ? { museumId: query.museumId } : {})
+                museumId: params.museumId
             },
             select: {
                 name: true,
@@ -78,13 +73,12 @@ export async function getCategory(req: Request, res: Response, next: NextFunctio
 
 const validateCreateParams = z.object({
     description: z.string(),
-    name: z.string()
+    name: z.string(),
 })
 export async function createCategory(req: Request, res: Response, next: NextFunction) {
     try {
         const params = validateMuseumId.parse(req.params);
         const body = validateCreateParams.parse(req.fields);
-        const files = validateImage.parse(req.files);
         const mus = await prisma.museum.findFirst({
             where: {
                 id: params.museumId
@@ -94,16 +88,11 @@ export async function createCategory(req: Request, res: Response, next: NextFunc
             }
         });
         if (!mus) return res.status(404).json({ errors: ['Museum not found!'] });
-        let url = undefined;
-        if (files?.image) {
-            url = await uploadFile(files.image.path);
-        }
         const category = await prisma.category.create({
             data: {
                 museumId: params.museumId,
                 description: body.description,
                 name: body.name,
-                imageUrl: url
             }
         })
         return res.status(201).json({ category });
@@ -115,17 +104,24 @@ export async function createCategory(req: Request, res: Response, next: NextFunc
 const validateUpdateParams = z.object({
     description: z.string(),
     name: z.string(),
-    museumId: z.preprocess(
-        a => parseInt(z.string().parse(a), 10),
-        z.number().min(0)
-    )
-})
+    museumId: z.number()
+});
 export async function updateCategory(req: Request, res: Response, next: NextFunction) {
     try {
-        const params = validateCategoryId.parse(req.params);
+        const params = validateMuseumIdCategoryId.parse(req.params);
         const body = validateUpdateParams.parse(req.fields);
-        const files = validateImage.parse(req.files);
+        // check if the current museum exists
         const mus = await prisma.museum.findFirst({
+            where: {
+                id: params.museumId
+            },
+            select: {
+                id: true
+            }
+        });
+        if (!mus) return res.status(404).json({ errors: ['Museum not found!'] });
+        // check if new museum exists
+        const newMus = await prisma.museum.findFirst({
             where: {
                 id: body.museumId
             },
@@ -133,21 +129,16 @@ export async function updateCategory(req: Request, res: Response, next: NextFunc
                 id: true
             }
         });
-        if (!mus) return res.status(404).json({ errors: ['Museum not found!'] });
-        let url = undefined;
-        if (files?.image) {
-            url = await uploadFile(files.image.path);
-        }
+        if (!newMus) return res.status(404).json({ errors: [`Can't change to a museum that doesn't exist!`] });
+        // update category
         const category = await prisma.category.update({
             where: {
                 id: params.categoryId
             },
             data: {
-                museumId: body.museumId,
                 description: body.description,
                 name: body.name,
-                ...(url ? { imageUrl: url } : {})
-
+                museumId: body.museumId
             }
         });
         return res.status(200).json({ category });
@@ -167,5 +158,28 @@ export async function deleteCategory(req: Request, res: Response, next: NextFunc
         return res.status(204).send();
     } catch (rr) {
         next(rr);
+    }
+}
+
+export async function updateImage(req: Request, res: Response, next: NextFunction) {
+    try {
+        const params = validateMuseumIdCategoryId.parse(req.params);
+        const files = validateImage.parse(req.files);
+        if (!files.image) {
+            return res.status(400).json({ errors: [`Missing image file`] });
+        }
+        let url = await uploadFile(files.image.path);
+        await prisma.category.update({
+            where: {
+                id: params.categoryId,
+                museumId: params.museumId,
+            },
+            data: {
+                imageUrl: url
+            }
+        })
+        return res.status(204).send();
+    } catch (err) {
+        next(err);
     }
 }

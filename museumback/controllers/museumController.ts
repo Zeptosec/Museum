@@ -7,7 +7,7 @@ import { uploadFile } from "../lib/storage";
 export async function searchMuseums(req: Request, res: Response, next: NextFunction) {
     try {
         const query = z.object({
-            name: z.string()
+            name: z.string().default('')
         }).parse(req.query);
 
         const museums = await prisma.museum.findMany({
@@ -64,16 +64,10 @@ const validateCreateParams = z.object({
 export async function createMuseum(req: Request, res: Response, next: NextFunction) {
     try {
         const body = validateCreateParams.parse(req.fields);
-        const files = validateImage.parse(req.files);
-        let url = undefined;
-        if (files?.image) {
-            url = await uploadFile(files.image.path);
-        }
         const mus = await prisma.museum.create({
             data: {
                 description: body.description,
                 name: body.name,
-                imageUrl: url
             }
         })
         return res.status(201).json({ museum: mus });
@@ -84,18 +78,13 @@ export async function createMuseum(req: Request, res: Response, next: NextFuncti
 
 const validateUpdateParams = z.object({
     description: z.string(),
-    name: z.string()
+    name: z.string(),
 })
 
 export async function updateMuseum(req: Request, res: Response, next: NextFunction) {
     try {
         const urlParams = validateMuseumId.parse(req.params);
         const params = validateUpdateParams.parse(req.fields);
-        const files = validateImage.parse(req.files);
-        let url = undefined;
-        if (files?.image) {
-            url = await uploadFile(files.image.path);
-        }
         const mus = await prisma.museum.update({
             where: {
                 id: urlParams.museumId
@@ -103,7 +92,6 @@ export async function updateMuseum(req: Request, res: Response, next: NextFuncti
             data: {
                 description: params.description,
                 name: params.name,
-                ...(url ? { imageUrl: url } : {})
             }
         })
         return res.status(200).json({ museum: mus });
@@ -123,5 +111,27 @@ export async function deleteMuseum(req: Request, res: Response, next: NextFuncti
         return res.status(204).send();
     } catch (rr) {
         next(rr);
+    }
+}
+
+export async function updateImage(req: Request, res: Response, next: NextFunction) {
+    try {
+        const params = validateMuseumId.parse(req.params);
+        const files = validateImage.parse(req.files);
+        if (!files.image) {
+            return res.status(400).json({ errors: [`Missing image file`] });
+        }
+        let url = await uploadFile(files.image.path);
+        await prisma.museum.update({
+            where: {
+                id: params.museumId
+            },
+            data: {
+                imageUrl: url
+            }
+        })
+        return res.status(204).send();
+    } catch (err) {
+        next(err);
     }
 }

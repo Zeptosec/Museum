@@ -1,17 +1,19 @@
 import { Router } from "express";
 import authenticate from "../middleware/authenticated";
-import { createItem, deleteItem, getItem, getItems, updateItem } from "../controllers/itemController";
+import { createItem, deleteItem, getItem, getItems, updateImage, updateItem } from "../controllers/itemController";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 // get items
-router.get('/:categoryId', getItems);
+router.get('/', getItems);
 // get single item
-router.get('/:categoryId/:itemId', getItem);
+router.get('/:itemId', getItem);
 // update an item
 router.put('/:itemId', authenticate(['ADMIN', 'CURATOR']), updateItem);
 // create an item
-router.post('/:categoryId', authenticate(['ADMIN']), createItem);
+router.post('/', authenticate(['ADMIN']), createItem);
+// change item image
+router.post('/image', authenticate(['ADMIN', 'CURATOR']), updateImage);
 // delete an item
 router.delete('/:itemId', authenticate(['ADMIN']), deleteItem);
 
