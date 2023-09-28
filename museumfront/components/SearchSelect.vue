@@ -24,7 +24,7 @@ export type SearchOption = {
 }
 const props = defineProps<{
     options: SearchOption[],
-    selected: SearchOption | undefined,
+    selected: SearchOption,
     placeholder?: string
 }>()
 const searchVal = ref(props.selected?.text)
@@ -39,7 +39,9 @@ watch(focused, (curr, prev) => {
     }
 })
 
-watch(props, (curr, prev) => {
+// no clue how to solve this problem with typescript
+// error is if selected is undefined
+watch(props.selected, (curr, prev) => {
     if (props.selected)
         searchVal.value = props.selected.text;
     else searchVal.value = '';

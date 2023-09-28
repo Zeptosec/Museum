@@ -16,7 +16,7 @@ router.put('/:categoryId', authenticate(['ADMIN']), updateCategory);
 // create museum category
 router.post('/', authenticate(['ADMIN']), createCategory);
 // change category image
-router.post('/image', authenticate(['ADMIN']), updateImage);
+router.post('/:categoryId/image', authenticate(['ADMIN']), updateImage);
 // delete museum category
 router.delete('/:categoryId', authenticate(['ADMIN']), deleteCategory);
 // item routes

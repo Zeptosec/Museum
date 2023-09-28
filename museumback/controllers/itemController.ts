@@ -6,7 +6,7 @@ import { TokenPayload } from "../utils/tokenator";
 import { uploadFile } from "../lib/storage";
 
 const validateItemData = z.object({
-    title: z.string(),
+    title: z.string().trim().min(1),
     description: z.string(),
 })
 
@@ -26,14 +26,14 @@ export async function createItem(req: Request, res: Response, next: NextFunction
             if (!userCat) return res.status(403).json({ errors: [`You don't have access to this category!`] });
         }
 
-        await prisma.item.create({
+        const item = await prisma.item.create({
             data: {
                 description: fields.description,
                 title: fields.title,
                 categoryId: params.categoryId
             }
         })
-        return res.status(201).send();
+        return res.status(201).json({ item });
     } catch (rr) {
         next(rr);
     }
@@ -44,7 +44,7 @@ export async function getItems(req: Request, res: Response, next: NextFunction) 
         const query = validatePagination.parse(req.query);
         const params = validateMuseumIdCategoryId.parse(req.params);
         const items = await prisma.item.findMany({
-            take: query.pageSize,
+            take: query.pageSize + 1,
             skip: (query.page - 1) * query.pageSize,
             where: {
                 categoryId: params.categoryId,
@@ -53,7 +53,12 @@ export async function getItems(req: Request, res: Response, next: NextFunction) 
                 }
             }
         })
-        return res.status(200).json({ items });
+        let hasNext = false;
+        if (items.length - 1 === query.pageSize) {
+            hasNext = true;
+            items.pop();
+        }
+        return res.status(200).json({ items, hasNext });
     } catch (err) {
         next(err);
     }
@@ -75,7 +80,8 @@ export async function getItem(req: Request, res: Response, next: NextFunction) {
                     include: {
                         museum: {
                             select: {
-                                name: true
+                                name: true,
+                                id: true
                             }
                         }
                     }

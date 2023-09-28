@@ -18,6 +18,8 @@
             errorObj.msg }}</p>
         <p ref="successRef" v-if="errorObj.succ.length > 0" class="text-lime-500 text-center font-bold text-xl mt-1">{{
             errorObj.succ }}</p>
+        <SavedModal v-if="showModal" @close="showModal = false" title="Created!"
+            :description="`${museumData.name} was created and saved!`" />
     </div>
 </template>
 
@@ -28,6 +30,7 @@ const userStore = useUserStore();
 const config = useRuntimeConfig();
 const errorRef = ref();
 const successRef = ref();
+const showModal = ref(false);
 const museumData = ref({
     name: '',
     description: '',
@@ -60,21 +63,37 @@ async function onSubmit() {
     errorObj.value.succ = "";
     pending.value = true;
     try {
-        const formdata = new FormData();
-        if (museumData.value.image)
-            formdata.append('image', museumData.value.image);
-        formdata.append('description', museumData.value.description);
-        formdata.append('name', museumData.value.name);
         const { json, response } = await AuthFetch(`${config.public.apiBase}/v1/museums`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${userStore.user.accessToken}`,
+                'content-type': 'application/json'
             },
-            body: formdata
+            body: JSON.stringify({
+                description: museumData.value.description,
+                name: museumData.value.name
+            })
         })
 
         if (response.ok) {
+            // for image upload
+            if (museumData.value.image) {
+                const formdata = new FormData();
+                formdata.append('image', museumData.value.image);
+                const { json: j, response: rs } = await AuthFetch(`${config.public.apiBase}/v1/museums/${json.museum.id}/image`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${userStore.user.accessToken}`,
+                    },
+                    body: formdata
+                });
+                if (!rs.ok) {
+                    const rr = getError(j);
+                    errorObj.value.msg = rr;
+                }
+            }
             errorObj.value.succ = "Created!";
+            showModal.value = true;
             nextTick(() => {
                 if (successRef.value) {
                     successRef.value.scrollIntoView({ behaviour: 'smooth' });

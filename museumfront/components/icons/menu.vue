@@ -1,0 +1,38 @@
+<template>
+    <div class="w-6 h-6 flex justify-center items-center">
+        <i class="gg-menu"></i>
+    </div>
+</template>
+
+<script setup lang="ts">
+
+</script>
+
+<style scoped>
+.gg-menu {
+    transform: scale(var(--ggs, 1))
+}
+
+.gg-menu,
+.gg-menu::after,
+.gg-menu::before {
+    box-sizing: border-box;
+    position: relative;
+    display: block;
+    width: 20px;
+    height: 2px;
+    border-radius: 3px;
+    background: currentColor
+}
+
+.gg-menu::after,
+.gg-menu::before {
+    content: "";
+    position: absolute;
+    top: -6px
+}
+
+.gg-menu::after {
+    top: 6px
+}
+</style>

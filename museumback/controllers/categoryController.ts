@@ -36,13 +36,18 @@ export async function getCategories(req: Request, res: Response, next: NextFunct
         const query = validatePagination.parse(req.query);
 
         const categories = await prisma.category.findMany({
-            take: query.pageSize,
+            take: query.pageSize + 1,
             skip: (query.page - 1) * query.pageSize,
             where: {
                 museumId: params.museumId
             }
         });
-        return res.status(200).json({ categories });
+        let hasNext = false;
+        if (categories.length - 1 === query.pageSize) {
+            hasNext = true;
+            categories.pop();
+        }
+        return res.status(200).json({ categories, hasNext });
     } catch (rr) {
         next(rr);
     }
@@ -73,7 +78,7 @@ export async function getCategory(req: Request, res: Response, next: NextFunctio
 
 const validateCreateParams = z.object({
     description: z.string(),
-    name: z.string(),
+    name: z.string().trim().min(1),
 })
 export async function createCategory(req: Request, res: Response, next: NextFunction) {
     try {
@@ -101,15 +106,10 @@ export async function createCategory(req: Request, res: Response, next: NextFunc
     }
 }
 
-const validateUpdateParams = z.object({
-    description: z.string(),
-    name: z.string(),
-    museumId: z.number()
-});
 export async function updateCategory(req: Request, res: Response, next: NextFunction) {
     try {
         const params = validateMuseumIdCategoryId.parse(req.params);
-        const body = validateUpdateParams.parse(req.fields);
+        const body = validateCreateParams.merge(validateMuseumId).parse(req.fields);
         // check if the current museum exists
         const mus = await prisma.museum.findFirst({
             where: {

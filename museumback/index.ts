@@ -3,8 +3,6 @@ import cors from 'cors';
 import authRouter from './routes/auth';
 import adminRouter from './routes/admin';
 import museumRouter from './routes/museum';
-import categoryRouter from './routes/category';
-import itemRouter from './routes/item';
 import 'dotenv/config'
 import errorHandler from './middleware/errorHandler';
 import cookieParser from 'cookie-parser';
@@ -22,8 +20,6 @@ app.use(formidable());
 app.use('/api/auth', authRouter);
 app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/museums', museumRouter);
-app.use('/api/v1/categories', categoryRouter);
-app.use('/api/v1/items', itemRouter);
 app.get('/', (_req, _res) => {
     _res.send("Express Oi!");
 });

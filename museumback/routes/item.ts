@@ -13,7 +13,7 @@ router.put('/:itemId', authenticate(['ADMIN', 'CURATOR']), updateItem);
 // create an item
 router.post('/', authenticate(['ADMIN']), createItem);
 // change item image
-router.post('/image', authenticate(['ADMIN', 'CURATOR']), updateImage);
+router.post('/:itemId/image', authenticate(['ADMIN', 'CURATOR']), updateImage);
 // delete an item
 router.delete('/:itemId', authenticate(['ADMIN']), deleteItem);
 

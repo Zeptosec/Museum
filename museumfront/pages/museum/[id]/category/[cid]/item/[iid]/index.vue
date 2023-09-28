@@ -9,13 +9,10 @@
 </template>
 
 <script setup lang="ts">
-import { CategoryData } from '~/components/CategoryCard.vue';
 import { ItemData } from '~/components/ItemCard.vue';
 const config = useRuntimeConfig()
 const route = useRoute()
-const { data: itemData } = await useFetch<{ item: ItemData }>(`${config.public.apiBase}/v1/items/${route.params.cid}/${route.params.iid}`);
-console.log(itemData.value)
-const { data: category } = await useFetch<{ category: CategoryData }>(`${config.public.apiBase}/v1/categories/${route.params.id}/${route.params.cid}`)
+const { data: itemData } = await useFetch<{ item: ItemData }>(`${config.public.apiBase}/v1/museums/${route.params.id}/categories/${route.params.cid}/items/${route.params.iid}`);
 </script>
 
 <style scoped></style>

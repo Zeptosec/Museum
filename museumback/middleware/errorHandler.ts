@@ -12,10 +12,13 @@ export default function errorHandler(
     console.log("custom err");
     if (err instanceof ZodError) {
         if (err instanceof ZodError) {
-            return res.status(400).json({ errors: formatToErrors(err) });
+            return res.status(422).json({ errors: formatToErrors(err) });
         }
     } else if (err instanceof TypeError) {
-        return res.status(500).json({ errors: [err.message] });
+        return res.status(400).json({ errors: [err.message] });
+    } else if (err instanceof Error) {
+        return res.status(400).json({ errors: [err.message] });
     }
+    // this in theory should never get called but just in case
     return res.status(500).json({ errors: ["Server error!"] });
 }

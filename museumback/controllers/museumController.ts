@@ -33,10 +33,15 @@ export async function getMuseums(req: Request, res: Response, next: NextFunction
     try {
         const query = validatePagination.parse(req.query);
         const mus = await prisma.museum.findMany({
-            take: query.pageSize,
+            take: query.pageSize + 1,
             skip: (query.page - 1) * query.pageSize
         });
-        return res.status(200).json({ museums: mus });
+        let hasNext = false;
+        if (mus.length - 1 === query.pageSize) {
+            hasNext = true;
+            mus.pop();
+        }
+        return res.status(200).json({ museums: mus, hasNext });
     } catch (rr) {
         next(rr);
     }
@@ -59,7 +64,7 @@ export async function getMuseum(req: Request, res: Response, next: NextFunction)
 
 const validateCreateParams = z.object({
     description: z.string(),
-    name: z.string(),
+    name: z.string().trim().min(1),
 })
 export async function createMuseum(req: Request, res: Response, next: NextFunction) {
     try {
@@ -76,15 +81,10 @@ export async function createMuseum(req: Request, res: Response, next: NextFuncti
     }
 }
 
-const validateUpdateParams = z.object({
-    description: z.string(),
-    name: z.string(),
-})
-
 export async function updateMuseum(req: Request, res: Response, next: NextFunction) {
     try {
         const urlParams = validateMuseumId.parse(req.params);
-        const params = validateUpdateParams.parse(req.fields);
+        const params = validateCreateParams.parse(req.fields);
         const mus = await prisma.museum.update({
             where: {
                 id: urlParams.museumId
