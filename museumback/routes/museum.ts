@@ -7,7 +7,7 @@ const router = Router();
 // get museums
 router.get('/', getMuseums);
 // search for museums by name
-router.get('/search', authenticate(['ADMIN']), searchMuseums)
+router.get('/search', authenticate(['ADMIN', 'CURATOR']), searchMuseums)
 // get single museum
 router.get('/:museumId', getMuseum);
 // update a museum

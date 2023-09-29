@@ -35,9 +35,9 @@ export async function login(req: Request, res: Response, next: NextFunction) {
                 email: userdata.email
             }
         });
-        if (!user) return res.status(400).json({ errors: [`email or password is incorrect!`] });
+        if (!user) return res.status(401).json({ errors: [`email or password is incorrect!`] });
         const isMatch = await bcrypt.compare(userdata.password, user.password);
-        if (!isMatch) return res.status(400).json({ errors: [`email or password is incorrect!`] })
+        if (!isMatch) return res.status(401).json({ errors: [`email or password is incorrect!`] })
         const payload = {
             id: user.id,
             role: user.role
@@ -72,7 +72,7 @@ export async function refresh(req: Request, res: Response) {
     try {
         const rt = req.cookies.refreshToken;
         if (!rt) {
-            return res.status(403).json({ errors: [`Missing a refresh token!`] });
+            return res.status(422).json({ errors: [`Missing a refresh token!`] });
         }
         const rtdata = await validateRefreshToken(rt);
         const user = await prisma.user.findFirst({
@@ -139,8 +139,8 @@ export async function refresh(req: Request, res: Response) {
 
 export async function logout(req: Request, res: Response, next: NextFunction) {
     try {
-        if (!req.headers.authorization) return res.status(401).json({ errors: ['Missing accessToken in headers!'] });
-        if (!req.headers.authorization.startsWith('Bearer ')) return res.status(400).json({ errors: [`Token must be a Bearer!`] });
+        if (!req.headers.authorization) return res.status(422).json({ errors: ['Missing accessToken in headers!'] });
+        if (!req.headers.authorization.startsWith('Bearer ')) return res.status(422).json({ errors: [`Token must be a Bearer!`] });
         const token = req.headers.authorization.slice(7);
         const data = await validateAccessToken(token);
         // removing refresh tokens if they exist

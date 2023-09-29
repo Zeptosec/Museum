@@ -7,6 +7,6 @@ router.use(authenticate(['ADMIN']));
 // register
 router.get('/users', getUsers);
 // change role
-router.patch('/role', setRole);
+router.patch('/user/role/:userId', setRole);
 
 export default router;

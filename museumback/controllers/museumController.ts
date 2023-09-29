@@ -3,27 +3,70 @@ import { prisma } from "../lib/prisma";
 import { z } from "zod";
 import { validateImage, validateMuseumId, validatePagination } from "../utils/validations";
 import { uploadFile } from "../lib/storage";
+import { TokenPayload } from "../utils/tokenator";
+import { validatedMuseum } from "./categoryController";
 
 export async function searchMuseums(req: Request, res: Response, next: NextFunction) {
     try {
-        const query = z.object({
+        const query = validatePagination.merge(z.object({
             name: z.string().default('')
-        }).parse(req.query);
-
-        const museums = await prisma.museum.findMany({
-            take: 5,
-            where: {
-                name: {
-                    contains: query.name,
-                    mode: 'insensitive'
-                }
-            },
-            select: {
-                name: true,
-                id: true
-            }
-        })
-        return res.status(200).json({ museums });
+        })).parse(req.query);
+        const user = res.locals.user as TokenPayload;
+        let museums = [];
+        switch (user.role) {
+            case 'CURATOR':
+                const curatorMuseums = await prisma.museum.findMany({
+                    take: query.pageSize + 1,
+                    skip: (query.page - 1) * query.pageSize,
+                    where: {
+                        categories: {
+                            some: {
+                                UserCategory: {
+                                    some: {
+                                        userId: res.locals.user.id
+                                    }
+                                }
+                            }
+                        },
+                        name: {
+                            contains: query.name,
+                            mode: 'insensitive'
+                        }
+                    },
+                    select: {
+                        name: true,
+                        id: true,
+                        imageUrl: true,
+                        description: true
+                    }
+                })
+                museums = curatorMuseums;
+                break;
+            case 'ADMIN':
+                museums = await prisma.museum.findMany({
+                    take: query.pageSize + 1,
+                    skip: (query.page - 1) * query.pageSize,
+                    where: {
+                        name: {
+                            contains: query.name,
+                            mode: 'insensitive'
+                        }
+                    },
+                    select: {
+                        name: true,
+                        id: true
+                    }
+                })
+                break;
+            default:
+                return res.status(501).json({ errors: [`Method for user role '${user.role}' is not implemented!`] });
+        }
+        let hasNext = false;
+        if (museums.length - 1 === query.pageSize) {
+            hasNext = true;
+            museums.pop();
+        }
+        return res.status(200).json({ museums, hasNext });
     } catch (err) {
         next(err);
     }
@@ -83,15 +126,17 @@ export async function createMuseum(req: Request, res: Response, next: NextFuncti
 
 export async function updateMuseum(req: Request, res: Response, next: NextFunction) {
     try {
-        const urlParams = validateMuseumId.parse(req.params);
-        const params = validateCreateParams.parse(req.fields);
+        const params = validateMuseumId.parse(req.params);
+        const body = validateCreateParams.parse(req.fields);
+        if (!await validatedMuseum(params.museumId, res))
+            return;
         const mus = await prisma.museum.update({
             where: {
-                id: urlParams.museumId
+                id: params.museumId
             },
             data: {
-                description: params.description,
-                name: params.name,
+                description: body.description,
+                name: body.name,
             }
         })
         return res.status(200).json({ museum: mus });
@@ -103,6 +148,8 @@ export async function updateMuseum(req: Request, res: Response, next: NextFuncti
 export async function deleteMuseum(req: Request, res: Response, next: NextFunction) {
     try {
         const params = validateMuseumId.parse(req.params);
+        if (!await validatedMuseum(params.museumId, res))
+            return;
         await prisma.museum.delete({
             where: {
                 id: params.museumId
@@ -118,6 +165,8 @@ export async function updateImage(req: Request, res: Response, next: NextFunctio
     try {
         const params = validateMuseumId.parse(req.params);
         const files = validateImage.parse(req.files);
+        if (!await validatedMuseum(params.museumId, res))
+            return;
         if (!files.image) {
             return res.status(400).json({ errors: [`Missing image file`] });
         }

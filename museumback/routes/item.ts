@@ -11,10 +11,10 @@ router.get('/:itemId', getItem);
 // update an item
 router.put('/:itemId', authenticate(['ADMIN', 'CURATOR']), updateItem);
 // create an item
-router.post('/', authenticate(['ADMIN']), createItem);
+router.post('/', authenticate(['ADMIN', 'CURATOR']), createItem);
 // change item image
 router.post('/:itemId/image', authenticate(['ADMIN', 'CURATOR']), updateImage);
 // delete an item
-router.delete('/:itemId', authenticate(['ADMIN']), deleteItem);
+router.delete('/:itemId', authenticate(['ADMIN', 'CURATOR']), deleteItem);
 
 export default router;
