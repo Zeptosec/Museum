@@ -2,7 +2,7 @@
     <div v-if="category && category.category">
         <h1 class="text-center text-2xl pb-2 font-bold">{{ category.category.name }}</h1>
         <p class="text-center text-lg border-b border-secondary pb-2 mb-2">{{ category.category.description }}</p>
-        <div v-if="userStore.user?.role === 'ADMIN'" class="flex justify-center py-2">
+        <div v-if="userStore.user && ['ADMIN', 'CURATOR'].includes(userStore.user.role)" class="flex justify-center py-2">
             <NuxtLink :to="`${route.path}/item/new`" class="px-3 py-1 rounded-xl bg-tertiary hover:text-secondary">New item
             </NuxtLink>
         </div>

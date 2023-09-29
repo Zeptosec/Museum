@@ -145,7 +145,7 @@ function onFileChange(e: any) {
 }
 
 onMounted(() => {
-    if (!userStore.user || userStore.user.role !== 'ADMIN') {
+    if (!userStore.user || !['ADMIN', 'CURATOR'].includes(userStore.user.role)) {
         router.replace('/');
     }
 })
