@@ -35,14 +35,13 @@ async function changeRole(user: UserInfo, newRole: string) {
     if (!userStore.user) return;
     let rs;
     try {
-        rs = await AuthFetch(`${config.public.apiBase}/v1/admin/role`, {
+        rs = await AuthFetch(`${config.public.apiBase}/v1/admin/user/role/${user.id}`, {
             method: 'PATCH',
             headers: {
                 'Authorization': `Bearer ${userStore.user.accessToken}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                userid: user.id,
                 newRole
             })
         })

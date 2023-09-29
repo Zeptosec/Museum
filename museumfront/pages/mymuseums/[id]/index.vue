@@ -7,13 +7,14 @@
                 category
             </NuxtLink>
         </div>
-        <h2 class="text-center text-2xl font-bold">Categories</h2>
+        <h2 class="text-center text-2xl font-bold">My categories</h2>
         <p v-if="categories.length === 0 && !pending" class="text-center text-xl font-bold text-error">
             Museum has no
             categories</p>
         <section v-if="categories.length > 0" class="grid gap-2 xl:grid-cols-2 mt-2 pb-4">
             <CategoryCard v-for="category in categories" :key="category.id" :category="category" :museum="data.museum"
-                :edit="userStore.user?.role === 'ADMIN'" @remove="deleteCategory" />
+                :edit="userStore.user?.role === 'ADMIN'" @remove="deleteCategory"
+                :url="`/museum/${route.params.id}/category/${category.id}`" />
         </section>
         <div class="flex justify-between max-w-xl mx-auto xl:max-w-7xl">
             <div>
@@ -70,9 +71,13 @@ async function fetchCategories(pass = false) {
     if (pending.value && !pass) return;
     errorObj.value.state = false;
     try {
-        const rs = await fetch(`${config.public.apiBase}/v1/museums/${route.params.id}/categories?page=${pageParams.value.page}&pageSize=${pageParams.value.pageSize}`);
-        const json = await rs.json();
-        if (rs.ok) {
+        const rs = await AuthFetch(`${config.public.apiBase}/v1/museums/${route.params.id}/categories/search?page=${pageParams.value.page}&pageSize=${pageParams.value.pageSize}`, {
+            headers: {
+                'Authorization': `Bearer ${userStore.user?.accessToken}`
+            }
+        });
+        const json = await rs.json;
+        if (rs.response.ok) {
             categories.value = json.categories;
             hasnext.value = json.hasNext;
         } else {
@@ -154,7 +159,11 @@ async function deleteCategory(id: number) {
     }
 }
 useHead({
-    title: 'Categories'
+    title: 'My categories'
+})
+onMounted(() => {
+    if (!userStore.user || userStore.user.role === 'GUEST')
+        router.push('/');
 })
 </script>
 

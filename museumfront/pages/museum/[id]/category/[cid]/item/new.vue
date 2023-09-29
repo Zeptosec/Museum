@@ -149,6 +149,9 @@ onMounted(() => {
         router.replace('/');
     }
 })
+useHead({
+    title: 'New item'
+})
 </script>
 
 <style scoped></style>

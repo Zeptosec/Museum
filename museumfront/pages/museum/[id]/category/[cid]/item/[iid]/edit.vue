@@ -1,4 +1,7 @@
 <template>
+    <!-- <div class="max-w-xl mx-auto mb-2 flex justify-center">
+        <BackButton title="categories" push="item" />
+    </div> -->
     <div v-if="fetching.state">
         <p class="text-error text-center font-bold text-xl mt-1" v-if="fetching.error.length > 0">{{ fetching.error }}
         </p>
@@ -245,12 +248,15 @@ async function onSubmit() {
     }
 }
 
+const initialAbort = new AbortController();
 onMounted(async () => {
-    if (!userStore.user || userStore.user.role !== 'ADMIN') {
+    if (!userStore.user || !['ADMIN', 'CURATOR'].includes(userStore.user.role)) {
         return router.replace('/');
     }
     try {
-        const rs = await fetch(`${config.public.apiBase}/v1/museums/${route.params.id}/categories/${route.params.cid}/items/${route.params.iid}`);
+        const rs = await fetch(`${config.public.apiBase}/v1/museums/${route.params.id}/categories/${route.params.cid}/items/${route.params.iid}`, {
+            signal: initialAbort.signal
+        });
         const json = await rs.json();
         if (rs.ok) {
             fetching.value.state = false;
@@ -276,6 +282,15 @@ onMounted(async () => {
             fetching.value.error = "Failed to fetch";
         }
     }
+})
+
+onUnmounted(() => {
+    abortContrl?.abort();
+    catAbortContrl?.abort();
+    initialAbort.abort();
+})
+useHead({
+    title: 'Edit item'
 })
 </script>
 

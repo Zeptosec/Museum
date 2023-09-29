@@ -181,6 +181,9 @@ onMounted(async () => {
         }
     }
 })
+useHead({
+    title: 'Edit museum'
+})
 </script>
 
 <style scoped></style>

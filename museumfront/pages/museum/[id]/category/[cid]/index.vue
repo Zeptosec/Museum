@@ -11,7 +11,7 @@
             items</p>
         <section v-else class="grid gap-2 xl:grid-cols-2 mt-2 pb-4 ">
             <ItemCard v-for="item in items" :item="item" :key="item.id" :museumId="category.category.museumId"
-                :edit="userStore.user?.role === 'ADMIN'" @remove="deleteItem" />
+                :edit="category.canEdit" @remove="deleteItem" />
         </section>
         <div class="flex justify-between max-w-xl mx-auto xl:max-w-7xl">
             <div>
@@ -152,7 +152,11 @@ useHead({
     title: 'Items'
 })
 
-const { data: category } = await useFetch<{ category: CategoryData }>(`${config.public.apiBase}/v1/museums/${route.params.id}/categories/${route.params.cid}`)
+const { data: category } = await useFetch<{ category: CategoryData, canEdit: boolean }>(`${config.public.apiBase}/v1/museums/${route.params.id}/categories/${route.params.cid}`, {
+    headers: {
+        'authorization': `Bearer ${userStore.user?.accessToken}`
+    }
+})
 </script>
 
 <style scoped></style>

@@ -3,7 +3,7 @@
         <header class="bg-secondary mb-4">
             <Navbar />
         </header>
-        <main class="mx-auto max-w-6xl px-2">
+        <main class="mx-auto max-w-6xl px-2 min-h-[calc(100vh-120px)]">
             <slot />
         </main>
         <footer>

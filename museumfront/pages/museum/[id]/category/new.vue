@@ -147,6 +147,9 @@ onMounted(() => {
         router.replace('/');
     }
 })
+useHead({
+    title: 'New category'
+})
 </script>
 
 <style scoped></style>

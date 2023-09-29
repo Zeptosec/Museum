@@ -24,6 +24,9 @@
                 <NuxtLink v-if="userStore.user.role === 'ADMIN'" to="/admin/users">
                     Users
                 </NuxtLink>
+                <NuxtLink v-if="userStore.user.role === 'CURATOR'" to="/mymuseums">
+                    My museums
+                </NuxtLink>
                 <!-- <NuxtLink v-if="userStore.user.role === 'ADMIN'" to="/admin/museum">New museum</NuxtLink> -->
             </div>
         </section>
@@ -64,9 +67,14 @@
                         Logout
                     </span>
                 </li>
-                <li class="py-1">
-                    <NuxtLink v-if="userStore.user.role === 'ADMIN'" to="/admin/users">
+                <li class="py-1" v-if="userStore.user.role === 'ADMIN'">
+                    <NuxtLink to="/admin/users">
                         Users
+                    </NuxtLink>
+                </li>
+                <li v-if="userStore.user.role === 'CURATOR'">
+                    <NuxtLink to="/mymuseums">
+                        My museums
                     </NuxtLink>
                 </li>
             </ul>

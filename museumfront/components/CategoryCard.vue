@@ -15,12 +15,12 @@
             <p class="px-3 text-error font-bold text-center">delete {{ props.category.name }}?</p>
             <button @click="infoDel = false" class="!rounded-none">CANCEL</button>
         </div>
-        <NuxtLink :to="`/museum/${props.category.museumId}/category/${props.category.id}`">
+        <NuxtLink :to="props.url ? props.url : `/museum/${props.category.museumId}/category/${props.category.id}`">
             <NuxtImg loading="lazy" class="rounded-t-xl h-[300px] object-cover w-full" v-if="props.category.imageUrl"
                 :src="props.category.imageUrl" />
         </NuxtLink>
         <div class="p-3">
-            <NuxtLink :to="`/museum/${props.category.museumId}/category/${props.category.id}`"
+            <NuxtLink :to="props.url ? props.url : `/museum/${props.category.museumId}/category/${props.category.id}`"
                 class="p-1 text-2xl font-bold group-hover:text-tertiary transition-colors">{{ props.category.name }}
             </NuxtLink>
             <p class="p-1 mt-1 text-lg border-t-2 border-primary group-hover:border-tertiary transition-colors">{{
@@ -41,7 +41,8 @@ export type CategoryData = {
 }
 const props = defineProps<{
     category: CategoryData,
-    edit: boolean
+    edit: boolean,
+    url?: string
 }>()
 
 const infoDel = ref(false);

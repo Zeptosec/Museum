@@ -20,6 +20,9 @@
             <input v-on:change="onFileChange" type="file" id="img" name="img" accept="image/jpg, image/png, image/jpeg" />
             <NuxtImg v-if="categoryData.imageUrl" :src="categoryData.imageUrl"
                 class="rounded-xl max-h-[300px] object-cover w-full" />
+            <p class="text-center text-xl">Control who can edit</p>
+            <SearchSelectMultiple @searched="usersSearched" :options="userOptions" placeholder="someuser@gmail.com"
+                :selected="editUsers" @changed="userSelected" @remove="userRemove" />
             <Loader v-if="pending" class="text-xl mx-auto" />
             <button v-else>
                 Update
@@ -48,6 +51,86 @@ const successRef = ref();
 const title = ref('');
 const showModal = ref(false);
 const options = ref<SearchOption[]>([])
+
+const userOptions = ref<SearchOption[]>([]);
+const editUsers = ref<SearchOption[]>([]);
+
+let abortUserSearch: AbortController | undefined;
+async function usersSearched(text: string) {
+    if (abortUserSearch) abortUserSearch.abort();
+    abortUserSearch = new AbortController()
+    try {
+        const { response, json } = await AuthFetch(`${config.public.apiBase}/v1/admin/users?email=${text}&role=CURATOR`, {
+            headers: {
+                'authorization': `Bearer ${userStore.user?.accessToken}`,
+            },
+            signal: abortUserSearch.signal
+        })
+        if (response.ok) {
+            userOptions.value = json.users.map((w: any) => ({ id: w.id, text: w.email }));
+        } else {
+            userOptions.value = []
+        }
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+async function userRemove(opt: SearchOption) {
+    if (!editUsers.value.find(w => w.id === opt.id) || !userStore.user) return;
+    // remove user from the list
+    editUsers.value = editUsers.value.filter(w => w.id !== opt.id);
+    let failed = false;
+    try {
+        const { response, json } = await AuthFetch(`${config.public.apiBase}/v1/museums/${route.params.id}/categories/${route.params.cid}/removeuser/${opt.id}`, {
+            method: 'DELETE',
+            headers: {
+                'authorization': `Bearer ${userStore.user.accessToken}`,
+            },
+        });
+        if (!response.ok) {
+            alert(getError(json));
+            failed = true;
+        }
+    } catch (err) {
+        console.log(err);
+        failed = true;
+        alert(getError(err));
+    }
+    if (failed) {
+        // add user back if failed
+        editUsers.value.push(opt);
+    }
+}
+
+async function userSelected(opt: SearchOption) {
+    if (editUsers.value.find(w => w.id === opt.id) || !userStore.user) return;
+    editUsers.value.push(opt);
+    let failed = false;
+    try {
+        const { response, json } = await AuthFetch(`${config.public.apiBase}/v1/museums/${route.params.id}/categories/${route.params.cid}/adduser`, {
+            method: 'POST',
+            headers: {
+                'authorization': `Bearer ${userStore.user.accessToken}`,
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                id: opt.id
+            })
+        });
+        if (!response.ok) {
+            alert(getError(json));
+            failed = true;
+        }
+    } catch (err) {
+        console.log(err);
+        failed = true;
+        alert(getError(err));
+    }
+    if (failed) {
+        editUsers.value = editUsers.value.filter(w => w.id !== opt.id);
+    }
+}
 
 const categoryData = ref({
     name: '',
@@ -206,6 +289,14 @@ onMounted(async () => {
                 id: json.category.museumId
             }
             title.value = json.category.name;
+            const rs2 = await AuthFetch(`${config.public.apiBase}/v1/museums/${route.params.id}/categories/${route.params.cid}/users`, {
+                headers: {
+                    'authorization': `Bearer ${userStore.user.accessToken}`
+                }
+            })
+            if (rs2.response.ok) {
+                editUsers.value = rs2.json.users.map((w: any) => ({ id: w.id, text: w.email }));
+            }
         } else {
             fetching.value.error = getError(json);
         }
@@ -218,6 +309,9 @@ onMounted(async () => {
             fetching.value.error = "Failed to fetch";
         }
     }
+})
+useHead({
+    title: 'Edit category'
 })
 </script>
 

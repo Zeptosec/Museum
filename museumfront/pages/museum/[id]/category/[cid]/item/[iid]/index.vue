@@ -13,6 +13,9 @@ import { ItemData } from '~/components/ItemCard.vue';
 const config = useRuntimeConfig()
 const route = useRoute()
 const { data: itemData } = await useFetch<{ item: ItemData }>(`${config.public.apiBase}/v1/museums/${route.params.id}/categories/${route.params.cid}/items/${route.params.iid}`);
+useHead({
+    title: 'Item'
+})
 </script>
 
 <style scoped></style>

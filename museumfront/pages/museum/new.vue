@@ -137,6 +137,9 @@ onMounted(() => {
         router.replace('/');
     }
 })
+useHead({
+    title: 'New museum'
+})
 </script>
 
 <style scoped></style>
