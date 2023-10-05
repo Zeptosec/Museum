@@ -51,3 +51,9 @@ The platform is made of two parts: frontend, where users can view the page with 
 
 ## Deployment diagram
 ![Deployment diagram](assets/deployment_diagram.png)
+
+## Wireframes
+Museum list wireframe
+![Museums list](assets/museumslist_wireframe.png)
+Museum creation form wireframe
+![Museum creation form](assets/newmuseum_wireframe.png)
