@@ -1,5 +1,5 @@
 <template>
-    <nav class="w-full max-w-6xl p-2 mx-auto relative">
+    <nav class="w-full max-w-6xl px-4 py-2 relative">
         <section class="sm:flex hidden w-full justify-between ">
             <div>
                 <NuxtLink to="/">

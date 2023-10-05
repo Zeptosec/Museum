@@ -26,6 +26,11 @@ app.get('/', (_req, _res) => {
 
 // handle errors from every endpoint
 app.use(errorHandler);
+app.all('/*', (req, res) => {
+    return res.status(405).json({
+        errors: ['Method unsupported']
+    });
+})
 app.listen(process.env.PORT || 4000, () => {
     console.log(`TypeScript with Express on port: ${process.env.PORT || 4000}`);
 });

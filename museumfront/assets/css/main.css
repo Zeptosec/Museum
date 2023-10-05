@@ -20,6 +20,24 @@
     line-height: 32px;
 }
 
+@font-face {
+    font-family: 'Pixelify';
+    src: url('/fonts/Pixelify/PixelifySans-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+    line-height: 32px;
+}
+
+@font-face {
+    font-family: 'Indie';
+    src: url('/fonts/Indie/IndieFlower-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+    line-height: 32px;
+}
+
 @layer base {
 
     html[data-theme="default"] {
@@ -30,6 +48,14 @@
         --color-error: 239 68 68;
     }
 
+}
+
+footer {
+    font-family: 'Pixelify';
+}
+
+header {
+    font-family: 'Indie';
 }
 
 html {

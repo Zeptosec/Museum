@@ -82,7 +82,7 @@ async function userRemove(opt: SearchOption) {
     editUsers.value = editUsers.value.filter(w => w.id !== opt.id);
     let failed = false;
     try {
-        const { response, json } = await AuthFetch(`${config.public.apiBase}/v1/museums/${route.params.id}/categories/${route.params.cid}/removeuser/${opt.id}`, {
+        const { response, json } = await AuthFetch(`${config.public.apiBase}/v1/admin/museums/${route.params.id}/categories/${route.params.cid}/removeuser/${opt.id}`, {
             method: 'DELETE',
             headers: {
                 'authorization': `Bearer ${userStore.user.accessToken}`,
@@ -108,7 +108,7 @@ async function userSelected(opt: SearchOption) {
     editUsers.value.push(opt);
     let failed = false;
     try {
-        const { response, json } = await AuthFetch(`${config.public.apiBase}/v1/museums/${route.params.id}/categories/${route.params.cid}/adduser`, {
+        const { response, json } = await AuthFetch(`${config.public.apiBase}/v1/admin/museums/${route.params.id}/categories/${route.params.cid}/adduser`, {
             method: 'POST',
             headers: {
                 'authorization': `Bearer ${userStore.user.accessToken}`,
@@ -289,7 +289,7 @@ onMounted(async () => {
                 id: json.category.museumId
             }
             title.value = json.category.name;
-            const rs2 = await AuthFetch(`${config.public.apiBase}/v1/museums/${route.params.id}/categories/${route.params.cid}/users`, {
+            const rs2 = await AuthFetch(`${config.public.apiBase}/v1/admin/museums/${route.params.id}/categories/${route.params.cid}/users`, {
                 headers: {
                     'authorization': `Bearer ${userStore.user.accessToken}`
                 }

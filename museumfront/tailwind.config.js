@@ -12,8 +12,9 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        regular: 'Jost',
-        bold: 'JostBold'
+        jostregular: 'Jost',
+        jostbold: 'JostBold',
+        varela: 'Varela'
       },
       colors: {
         'primary': 'rgb(var(--color-primary) / <alpha-value>)',
