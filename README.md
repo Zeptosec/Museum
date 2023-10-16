@@ -27,7 +27,7 @@ Start frontend in development:
 cd museum/museumfront
 npm run dev
 ```
-
+Also check out [API reference](https://github.com/Zeptosec/Museum/wiki/API-reference).
 ## Purpose
 To let visitor read about the museum and it's items on the internet.
 The platform is made of two parts: frontend, where users can view the page with nicely formatted data, and backend where data can be modified or fetched from database and served to user using API. 
